@@ -12,10 +12,10 @@ foreach ($toon in $toons )
     if ($toon.Login -ne '')
     {
     $ini += [pscustomobject]@{
-		Login   = $toon.Login.Trim()
+	Login   = $toon.Login.Trim()
         Password  = $toon.Password.Trim()
         Server    = $toon.Server.Trim()
-		    Character = $toon.Character.Trim()
+	Character = $toon.Character.Trim()
         EQPath    = $toon.EQPath.Trim()
         Shortcut  = $toon.ShortCut.Trim()  
       }
