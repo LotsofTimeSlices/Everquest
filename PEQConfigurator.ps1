@@ -234,8 +234,8 @@ function Show-MainForm_psf
 			$list = @()
 			$list += '#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.'
 			$list += '#Warn  ; Recommended for catching common errors.'
-			$list += 'SendMode Input; Recommended for new scripts due to its superior speed and reliability.'
-			$list += 'SetWorkingDir %A_ScriptDir%; Ensures a consistent starting directory.'
+			$list += 'SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.'
+			$list += 'SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.'
 			$list += ''
 			foreach ($l in $lines)
 			{
