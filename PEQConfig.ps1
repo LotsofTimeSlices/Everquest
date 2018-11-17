@@ -57,6 +57,15 @@ function Show-MainForm_psf
 	#----------------------------------------------
 	[System.Windows.Forms.Application]::EnableVisualStyles()
 	$MainForm = New-Object 'System.Windows.Forms.Form'
+	$buttonSaveAsDefaultLocatio = New-Object 'System.Windows.Forms.Button'
+	$buttonBrowseFolder = New-Object 'System.Windows.Forms.Button'
+	$ShortcutsFolder = New-Object 'System.Windows.Forms.TextBox'
+	$labelShortcutsLocation = New-Object 'System.Windows.Forms.Label'
+	$groupbox1 = New-Object 'System.Windows.Forms.GroupBox'
+	$labelUtilities = New-Object 'System.Windows.Forms.Label'
+	$buttonStartMissingToons = New-Object 'System.Windows.Forms.Button'
+	$buttonKillAllEQWindows = New-Object 'System.Windows.Forms.Button'
+	$buttonCPUAffinity = New-Object 'System.Windows.Forms.Button'
 	$labelPEQConfiguratorIsDes = New-Object 'System.Windows.Forms.Label'
 	$buttonBuildSampleTOONSCSV = New-Object 'System.Windows.Forms.Button'
 	$labelPEQConfigurator = New-Object 'System.Windows.Forms.Label'
@@ -76,6 +85,7 @@ function Show-MainForm_psf
 	$folderbrowserdialog2 = New-Object 'System.Windows.Forms.FolderBrowserDialog'
 	$folderbrowserdialog3 = New-Object 'System.Windows.Forms.FolderBrowserDialog'
 	$savefiledialog1 = New-Object 'System.Windows.Forms.SaveFileDialog'
+	$folderbrowserdialog4 = New-Object 'System.Windows.Forms.FolderBrowserDialog'
 	$InitialFormWindowState = New-Object 'System.Windows.Forms.FormWindowState'
 	#endregion Generated Form Objects
 
@@ -88,7 +98,13 @@ function Show-MainForm_psf
 		$buttonBuildShortcuts.Enabled = $false
 		$buttonBuildAutoHotKey.Enabled = $false
 		$buttonBuildMQ2AutoLogin.Enabled = $false
-	
+		$buttonStartMissingToons.Enabled = $false
+		if (Test-Path ".\PEQConfig.ini")
+		{
+			$INIcontent = Get-IniContent -filePath .\PEQConfig.ini
+			$toonsFile.Text = $INIcontent.Paths.ToonsLocation
+			$ShortcutsFolder.Text = $INIcontent.Paths.ShortcutsLocation
+		}
 	}
 	
 	$buttonCallChildForm_Click = {
@@ -113,79 +129,58 @@ function Show-MainForm_psf
 	}
 	
 	$toonsFile_TextChanged = {
-		if ($toonsFile.Text -ne '')
-		{
-			$buttonBuildShortcuts.Enabled = $true
-			$buttonBuildAutoHotKey.Enabled = $true
-			$buttonBuildMQ2AutoLogin.Enabled = $true
-		}
-		else
-		{
-			$buttonBuildShortcuts.Enabled = $false
-			$buttonBuildAutoHotKey.Enabled = $false
-			$buttonBuildMQ2AutoLogin.Enabled = $false		
-			
-		}
+		button-check	
 	}
 	
 	$buttonBuildShortcuts_Click = {
 		buttondown
 		$richtextbox1.Clear()
-		if ($folderbrowserdialog1.ShowDialog() -eq 'OK')
+		$ini = @()
+		$toons = Import-Csv -Path $toonsFile.Text #Toons CSV location
+		foreach ($toon in $toons)
 		{
-			$script:shortcutFolder = $folderbrowserdialog1.SelectedPath
-			
-			$ini = @()
-			$toons = Import-Csv -Path $toonsFile.Text #Toons CSV location
-			foreach ($toon in $toons)
+			if ($toon.Login -ne '')
 			{
-				if ($toon.Login -ne '')
-				{
-					$ini += [pscustomobject]@{
-						Login = $toon.Login.Trim()
-						Password = $toon.Password.Trim()
-						Server = $toon.Server.Trim()
-						Character = $toon.Character.Trim()
-						EQPath = $toon.EQPath.Trim()
-					}
+				$ini += [pscustomobject]@{
+					Login = $toon.Login.Trim()
+					Password = $toon.Password.Trim()
+					Server = $toon.Server.Trim()
+					Character = $toon.Character.Trim()
+					EQPath = $toon.EQPath.Trim()
 				}
 			}
-			
-			if (-not ($shortcutFolder.EndsWith('\')))
-			{
-				$shortcutFolder = $shortcutFolder + '\'
-			}
-			
-			Update-Display "Building Shortcuts..." -color 'Orange'
-			foreach ($i in $ini)
-			{
-				$TargetPathExe = $i.EQPath + '\eqgame.exe'
-				$Arguments = "patchme /login:$($i.Login)"
-				$ShortcutName = $i.Character + '.lnk'
-				$WorkingDirectory = $i.EQPath
-				#$Description = ''
-				
-				#$FullLink = $ShortcutPath + $Shortcut
-				$Shell = New-Object -ComObject ("WScript.Shell")
-				$ShortCut = $Shell.CreateShortcut($shortcutFolder + $ShortcutName)
-				$ShortCut.TargetPath = $TargetPathExe #"yourexecutable.exe"
-				$ShortCut.Arguments = $Arguments #$Arguments #"-arguementsifrequired"
-				$ShortCut.WorkingDirectory = $WorkingDirectory #"c:\your\executable\folder\path";
-				#$ShortCut.WindowStyle = 1;
-				#$ShortCut.Hotkey = "CTRL+SHIFT+F";
-				#$ShortCut.IconLocation = "yourexecutable.exe, 0";
-				#$ShortCut.Description = $Description #"Your Custom Shortcut Description";
-				$ShortCut.Save()
-			}
-			Update-Display "Finished Building Shortcuts!" -color 'Green'
-			Update-Display "Shortcuts saved to:" -color 'Orange'
-			Update-Display "File:///$($shortcutFolder)"
-			$buttonBuildAutoHotKey.Enabled = $true
 		}
-		else
+		
+		if (-not ($ShortcutsFolder.Text.EndsWith('\')))
 		{
-			Update-Display 'Operation Cancelled' -color 'Red'
+			$ShortcutsFolder.Text = $shortcutsFolder.Text + '\'
 		}
+		
+		Update-Display "Building Shortcuts..." -color 'Orange'
+		foreach ($i in $ini)
+		{
+			$TargetPathExe = $i.EQPath + '\eqgame.exe'
+			$Arguments = "patchme /login:$($i.Login)"
+			$ShortcutName = $i.Character + '.lnk'
+			$WorkingDirectory = $i.EQPath
+			#$Description = ''
+			
+			#$FullLink = $ShortcutsPath + $Shortcut
+			$Shell = New-Object -ComObject ("WScript.Shell")
+			$ShortCut = $Shell.CreateShortcut($ShortcutsFolder.Text + $ShortcutName)
+			$ShortCut.TargetPath = $TargetPathExe #"yourexecutable.exe"
+			$ShortCut.Arguments = $Arguments #$Arguments #"-arguementsifrequired"
+			$ShortCut.WorkingDirectory = $WorkingDirectory #"c:\your\executable\folder\path";
+			#$ShortCut.WindowStyle = 1;
+			#$ShortCut.Hotkey = "CTRL+SHIFT+F";
+			#$ShortCut.IconLocation = "yourexecutable.exe, 0";
+			#$ShortCut.Description = $Description #"Your Custom Shortcut Description";
+			$ShortCut.Save()
+		}
+		Update-Display "Finished Building Shortcuts!" -color 'Green'
+		Update-Display "Shortcuts saved to:" -color 'Orange'
+		Update-Display "File:///$($ShortcutsFolder.Text)"
+		$buttonBuildAutoHotKey.Enabled = $true
 		
 		buttonup
 		
@@ -194,7 +189,7 @@ function Show-MainForm_psf
 	$buttonBuildAutoHotKey_Click = {
 		buttondown
 		$richtextbox1.Clear()
-		$shortcuts = Get-ChildItem -Path $shortcutFolder -filter "*.lnk" #New shortcuts folder
+		$shortcuts = Get-ChildItem -Path $shortcutsFolder.Text -filter "*.lnk" #New shortcuts folder
 		$toons = Import-Csv -Path $toonsFile.Text #Toons CSV location
 		$ini = @()
 		foreach ($toon in $toons)
@@ -250,61 +245,9 @@ function Show-MainForm_psf
 		else
 		{
 			Update-Display "Shortcuts folder is empty or not found.  Please create EQ shortcuts and try again." -color 'Yellow'
-			if ($folderbrowserdialog1.ShowDialog() -eq 'OK')
-			{
-				$script:shortcutFolder = $folderbrowserdialog1.SelectedPath
-				Start-Sleep -Seconds 1
-				$shortcuts = Get-ChildItem -Path $shortcutFolder -filter "*.lnk" #New shortcuts folder			
-				if ($shortcuts) #only run if $shortcuts contains data
-				{
-					$richtextbox1.Clear()
-					#reorder to match toons spreadsheet order
-					foreach ($i in $ini)
-					{
-						foreach ($s in $shortcuts)
-						{
-							if ($s.BaseName -eq $i.Character)
-							{
-								$lines += [PSCustomObject] @{
-									FullName = $s.FullName
-									Name	 = $s.BaseName
-								}
-							}
-						}
-					}
-					Clear-Host
-					#Build AutoHotKey
-					Update-Display '----Copy/Paste lines below into AutoHotKey script----' -color 'Orange'
-					$list = @()
-					$list += '#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.'
-					$list += '#Warn  ; Recommended for catching common errors.'
-					$list += 'SendMode Input; Recommended for new scripts due to its superior speed and reliability.'
-					$list += 'SetWorkingDir %A_ScriptDir%; Ensures a consistent starting directory.'
-					$list += ''
-					foreach ($l in $lines)
-					{
-						$list += 'Run ' + $($l.FullName)
-						$list += 'WinWaitActive, EverQuest'
-						$list += 'WinSetTitle, ' + $($l.Name)
-						$list += ''
-					}
-					Update-Display $list
-					Update-Display '----Copy/Paste lines above into AutoHotKey script----' -color 'Orange'
-				}
-				else
-				{
-					Update-Display 'No EQ shortcuts found.  Please create some first.' -color 'red'
-					$noshortcuts = $true
-					
-				}
-			}
 		}
 		
 		buttonup
-		if ($noshortcuts -eq $true)
-		{
-			$buttonBuildAutoHotKey.Enabled = $false
-		}
 	}
 	
 	$buttonBuildMQ2AutoLogin_Click = {
@@ -386,7 +329,7 @@ function Show-MainForm_psf
 		}
 		else
 		{
-			Update-Display 'Operation Cancelled' -color 'Red'	
+			Update-Display 'Operation Cancelled' -color 'Red'
 		}
 		
 		buttonup
@@ -394,9 +337,133 @@ function Show-MainForm_psf
 	}
 	
 	$richtextbox1_LinkClicked = [System.Windows.Forms.LinkClickedEventHandler]{
-			#Event Argument: $_ = [System.Windows.Forms.LinkClickedEventArgs]
-			Start-Process -FilePath $_.LinkText #make links clickable
+		#Event Argument: $_ = [System.Windows.Forms.LinkClickedEventArgs]
+		Start-Process -FilePath $_.LinkText #make links clickable
+		
+	}
+	
+	$buttonCPUAffinity_Click = {
+		buttondown
+		$richtextbox1.Clear()
+		$EQRunning = get-process -Name eqgame | Select-Object -ExpandProperty MainWindowTitle
+		if ($EQRunning -ne $null)
+		{
+			Update-Display 'Setting CPU affinity for all running Everquest processes...' -color 'Orange'
+			Start-Sleep -Seconds 1
+			$process = GET-PROCESS eqgame
+			foreach ($i in $process)
+			{
+				$i.ProcessorAffinity = 255
+			}
+		}
+		else
+		{
+			Update-Display 'Everquest is not running!' -color 'Yellow'
+		}
+		buttonup
+	}
+	
+	$buttonKillAllEQWindows_Click = {
+		buttondown
+		$richtextbox1.Clear()
+		$EQRunning = get-process -Name eqgame | Select-Object -ExpandProperty MainWindowTitle
+		if ($EQRunning -ne $null)
+		{
+			Update-Display 'Killing all Everquest processes...' -color 'Orange'
+			Start-Sleep -Seconds 1
+			taskkill /f /t /im eqgame.exe
+		}
+		else
+		{
+			Update-Display 'Everquest is not running!' -color 'Yellow'
+		}
+		buttonup
+	}
+	
+	$buttonStartMissingToons_Click = {
+		buttondown
+		$richtextbox1.Clear()	
+		$EQNotRunningShortcuts = @()
+		$list = @()
+		$MissingToons = @()
+		$EQRunning = get-process -Name eqgame | Select-Object -ExpandProperty MainWindowTitle
+		if ($EQRunning -ne $null)
+		{
+			$Shortcuts = Get-ChildItem -Path $ShortcutsFolder.Text
+			foreach ($S in $Shortcuts)
+			{
+				$list += $S.BaseName
+			}
+			$EQNotRunning = (Compare-Object -ReferenceObject $EQRunning -DifferenceObject $list).InputObject | Sort-Object
 			
+			foreach ($Shortcut in $Shortcuts)
+			{
+				if ($EQNotRunning -contains $Shortcut.BaseName)
+				{
+					Update-Display "$($Shortcut.BaseName) Not Running" -color 'Yellow'
+					$EQNotRunningShortcuts += $Shortcut
+					
+				}
+			}
+			#Build AutoHotKey
+			$AHKTopLines = @"
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#Warn  ; Recommended for catching common errors.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+"@
+			
+			$MissingToons = foreach ($EQNotRunningShortcut in $EQNotRunningShortcuts)
+			{
+				'Run ' + $EQNotRunningShortcut.FullName
+				'WinWaitActive, EverQuest'
+				'WinSetTitle, ' + $EQNotRunningShortcut.Name
+				''
+			}
+			
+			$AHKTopLines | Out-File $ENV:TEMP\missing.AHK
+			$MissingToons | Out-File $ENV:TEMP\missing.AHK -Append
+			Start-Sleep -Seconds 2
+			Update-Display 'Re-starting missing toons' -color 'Green'
+			Start-Process $ENV:TEMP\missing.AHK
+		}
+		elseif ($EQRunning -eq $null)
+		{
+			Update-Display 'Everquest is not running!' -color 'Yellow'
+		}
+		else
+		{
+			Update-Display 'No missing toons found' -color 'Green'	
+		}
+		buttonup
+	}
+	
+	$buttonBrowseFolder_Click = {
+		if ($folderbrowserdialog4.ShowDialog() -eq 'OK')
+		{
+			$ShortcutsFolder.Text = $folderbrowserdialog4.SelectedPath + '\'
+		}
+	}
+	
+	$ShortcutsFolder_TextChanged = {
+		button-check
+		
+	}
+	
+	$buttonSaveAsDefaultLocatio_Click = {
+		buttondown
+		$richtextbox1.Clear()
+		$currentPWD = Convert-path (get-location)
+		Update-Display "Saving PEQConfig.ini to:" -color 'Orange'
+		Update-Display "File:///$currentPWD"
+		Start-Sleep -Seconds 1
+		$ToonsLocation = @{ "ToonsLocation" = "$($toonsFile.Text)" }
+		$ShortcutsLocation = @{ "ShortcutsLocation" = "$($ShortcutsFolder.Text)" }
+		$NewINIContent = @{ "Paths" = $ToonsLocation + $ShortcutsLocation }
+		Out-IniFile -InputObject $NewINIContent -FilePath ".\PEQConfig.ini" -Force
+		buttonup
+		
 	}
 	
 	# --End User Generated Script--
@@ -413,6 +480,7 @@ function Show-MainForm_psf
 	$Form_StoreValues_Closing=
 	{
 		#Store the control values
+		$script:MainForm_ShortcutsFolder = $ShortcutsFolder.Text
 		$script:MainForm_richtextbox1 = $richtextbox1.Text
 		$script:MainForm_toonsFile = $toonsFile.Text
 	}
@@ -423,6 +491,12 @@ function Show-MainForm_psf
 		#Remove all event handlers from the controls
 		try
 		{
+			$buttonSaveAsDefaultLocatio.remove_Click($buttonSaveAsDefaultLocatio_Click)
+			$buttonBrowseFolder.remove_Click($buttonBrowseFolder_Click)
+			$ShortcutsFolder.remove_TextChanged($ShortcutsFolder_TextChanged)
+			$buttonStartMissingToons.remove_Click($buttonStartMissingToons_Click)
+			$buttonKillAllEQWindows.remove_Click($buttonKillAllEQWindows_Click)
+			$buttonCPUAffinity.remove_Click($buttonCPUAffinity_Click)
 			$buttonBuildSampleTOONSCSV.remove_Click($buttonBuildSampleTOONSCSV_Click)
 			$richtextbox1.remove_LinkClicked($richtextbox1_LinkClicked)
 			$buttonBuildMQ2AutoLogin.remove_Click($buttonBuildMQ2AutoLogin_Click)
@@ -443,9 +517,15 @@ function Show-MainForm_psf
 	#region Generated Form Code
 	#----------------------------------------------
 	$MainForm.SuspendLayout()
+	$groupbox1.SuspendLayout()
 	#
 	# MainForm
 	#
+	$MainForm.Controls.Add($buttonSaveAsDefaultLocatio)
+	$MainForm.Controls.Add($buttonBrowseFolder)
+	$MainForm.Controls.Add($ShortcutsFolder)
+	$MainForm.Controls.Add($labelShortcutsLocation)
+	$MainForm.Controls.Add($groupbox1)
 	$MainForm.Controls.Add($labelPEQConfiguratorIsDes)
 	$MainForm.Controls.Add($buttonBuildSampleTOONSCSV)
 	$MainForm.Controls.Add($labelPEQConfigurator)
@@ -458,7 +538,7 @@ function Show-MainForm_psf
 	$MainForm.Controls.Add($toonsFile)
 	$MainForm.AutoScaleDimensions = '6, 13'
 	$MainForm.AutoScaleMode = 'Font'
-	$MainForm.ClientSize = '595, 592'
+	$MainForm.ClientSize = '702, 639'
 	$MainForm.FormBorderStyle = 'FixedDialog'
 	#region Binary Data
 	$MainForm.Icon = [System.Convert]::FromBase64String('
@@ -544,6 +624,107 @@ AIAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAQDAAAMA4BgHAP///wA=')
 	$MainForm.Text = 'PEQ Configurator'
 	$MainForm.add_Load($MainForm_Load)
 	#
+	# buttonSaveAsDefaultLocatio
+	#
+	$buttonSaveAsDefaultLocatio.Location = '14, 162'
+	$buttonSaveAsDefaultLocatio.Name = 'buttonSaveAsDefaultLocatio'
+	$buttonSaveAsDefaultLocatio.Size = '275, 38'
+	$buttonSaveAsDefaultLocatio.TabIndex = 19
+	$buttonSaveAsDefaultLocatio.Text = 'Save as Default Locations'
+	$buttonSaveAsDefaultLocatio.UseCompatibleTextRendering = $True
+	$buttonSaveAsDefaultLocatio.UseVisualStyleBackColor = $True
+	$buttonSaveAsDefaultLocatio.add_Click($buttonSaveAsDefaultLocatio_Click)
+	#
+	# buttonBrowseFolder
+	#
+	$buttonBrowseFolder.Location = '295, 133'
+	$buttonBrowseFolder.Name = 'buttonBrowseFolder'
+	$buttonBrowseFolder.Size = '30, 23'
+	$buttonBrowseFolder.TabIndex = 4
+	$buttonBrowseFolder.Text = '...'
+	$buttonBrowseFolder.UseCompatibleTextRendering = $True
+	$buttonBrowseFolder.UseVisualStyleBackColor = $True
+	$buttonBrowseFolder.add_Click($buttonBrowseFolder_Click)
+	#
+	# ShortcutsFolder
+	#
+	$ShortcutsFolder.AutoCompleteMode = 'SuggestAppend'
+	$ShortcutsFolder.AutoCompleteSource = 'FileSystemDirectories'
+	$ShortcutsFolder.Location = '13, 136'
+	$ShortcutsFolder.Name = 'ShortcutsFolder'
+	$ShortcutsFolder.Size = '276, 20'
+	$ShortcutsFolder.TabIndex = 3
+	$ShortcutsFolder.add_TextChanged($ShortcutsFolder_TextChanged)
+	#
+	# labelShortcutsLocation
+	#
+	$labelShortcutsLocation.AutoSize = $True
+	$labelShortcutsLocation.Location = '14, 119'
+	$labelShortcutsLocation.Name = 'labelShortcutsLocation'
+	$labelShortcutsLocation.Size = '98, 17'
+	$labelShortcutsLocation.TabIndex = 18
+	$labelShortcutsLocation.Text = 'Shortcuts Location'
+	$labelShortcutsLocation.UseCompatibleTextRendering = $True
+	#
+	# groupbox1
+	#
+	$groupbox1.Controls.Add($labelUtilities)
+	$groupbox1.Controls.Add($buttonStartMissingToons)
+	$groupbox1.Controls.Add($buttonKillAllEQWindows)
+	$groupbox1.Controls.Add($buttonCPUAffinity)
+	$groupbox1.Location = '589, 7'
+	$groupbox1.Name = 'groupbox1'
+	$groupbox1.Size = '102, 618'
+	$groupbox1.TabIndex = 15
+	$groupbox1.TabStop = $False
+	$groupbox1.UseCompatibleTextRendering = $True
+	#
+	# labelUtilities
+	#
+	$labelUtilities.AutoSize = $True
+	$labelUtilities.Font = 'Arial Black, 14pt'
+	$labelUtilities.Location = '8, 10'
+	$labelUtilities.Name = 'labelUtilities'
+	$labelUtilities.Size = '90, 32'
+	$labelUtilities.TabIndex = 12
+	$labelUtilities.Text = 'Utilities'
+	$labelUtilities.UseCompatibleTextRendering = $True
+	#
+	# buttonStartMissingToons
+	#
+	$buttonStartMissingToons.Location = '8, 110'
+	$buttonStartMissingToons.Name = 'buttonStartMissingToons'
+	$buttonStartMissingToons.Size = '88, 56'
+	$buttonStartMissingToons.TabIndex = 11
+	$buttonStartMissingToons.Text = 'Start Missing Toons'
+	$tooltip1.SetToolTip($buttonStartMissingToons, 'Checks for any toons not running and starts them')
+	$buttonStartMissingToons.UseCompatibleTextRendering = $True
+	$buttonStartMissingToons.UseVisualStyleBackColor = $True
+	$buttonStartMissingToons.add_Click($buttonStartMissingToons_Click)
+	#
+	# buttonKillAllEQWindows
+	#
+	$buttonKillAllEQWindows.Location = '8, 556'
+	$buttonKillAllEQWindows.Name = 'buttonKillAllEQWindows'
+	$buttonKillAllEQWindows.Size = '88, 56'
+	$buttonKillAllEQWindows.TabIndex = 10
+	$buttonKillAllEQWindows.Text = 'Kill All EQ Windows'
+	$buttonKillAllEQWindows.UseCompatibleTextRendering = $True
+	$buttonKillAllEQWindows.UseVisualStyleBackColor = $True
+	$buttonKillAllEQWindows.add_Click($buttonKillAllEQWindows_Click)
+	#
+	# buttonCPUAffinity
+	#
+	$buttonCPUAffinity.Location = '8, 46'
+	$buttonCPUAffinity.Name = 'buttonCPUAffinity'
+	$buttonCPUAffinity.Size = '88, 56'
+	$buttonCPUAffinity.TabIndex = 8
+	$buttonCPUAffinity.Text = 'CPU Affinity'
+	$tooltip1.SetToolTip($buttonCPUAffinity, 'Force EQ to all cores')
+	$buttonCPUAffinity.UseCompatibleTextRendering = $True
+	$buttonCPUAffinity.UseVisualStyleBackColor = $True
+	$buttonCPUAffinity.add_Click($buttonCPUAffinity_Click)
+	#
 	# labelPEQConfiguratorIsDes
 	#
 	$labelPEQConfiguratorIsDes.Location = '378, 9'
@@ -565,7 +746,7 @@ Zuboo'
 	#
 	# buttonBuildSampleTOONSCSV
 	#
-	$buttonBuildSampleTOONSCSV.Location = '12, 244'
+	$buttonBuildSampleTOONSCSV.Location = '14, 279'
 	$buttonBuildSampleTOONSCSV.Name = 'buttonBuildSampleTOONSCSV'
 	$buttonBuildSampleTOONSCSV.Size = '88, 56'
 	$buttonBuildSampleTOONSCSV.TabIndex = 13
@@ -577,7 +758,7 @@ Zuboo'
 	# labelPEQConfigurator
 	#
 	$labelPEQConfigurator.AutoSize = $True
-	$labelPEQConfigurator.Font = 'Arial Black, 18pt, style=Italic'
+	$labelPEQConfigurator.Font = 'Arial Black, 18pt'
 	$labelPEQConfigurator.Location = '13, 9'
 	$labelPEQConfigurator.Name = 'labelPEQConfigurator'
 	$labelPEQConfigurator.Size = '242, 40'
@@ -589,17 +770,17 @@ Zuboo'
 	#
 	$richtextbox1.BackColor = '1, 36, 86'
 	$richtextbox1.Font = 'Consolas, 11pt'
-	$richtextbox1.Location = '13, 306'
+	$richtextbox1.Location = '12, 351'
 	$richtextbox1.Name = 'richtextbox1'
 	$richtextbox1.ReadOnly = $True
-	$richtextbox1.Size = '569, 274'
+	$richtextbox1.Size = '568, 274'
 	$richtextbox1.TabIndex = 11
 	$richtextbox1.Text = ''
 	$richtextbox1.add_LinkClicked($richtextbox1_LinkClicked)
 	#
 	# buttonBuildMQ2AutoLogin
 	#
-	$buttonBuildMQ2AutoLogin.Location = '201, 117'
+	$buttonBuildMQ2AutoLogin.Location = '202, 218'
 	$buttonBuildMQ2AutoLogin.Name = 'buttonBuildMQ2AutoLogin'
 	$buttonBuildMQ2AutoLogin.Size = '88, 56'
 	$buttonBuildMQ2AutoLogin.TabIndex = 9
@@ -610,7 +791,7 @@ Zuboo'
 	#
 	# buttonBuildAutoHotKey
 	#
-	$buttonBuildAutoHotKey.Location = '107, 117'
+	$buttonBuildAutoHotKey.Location = '108, 218'
 	$buttonBuildAutoHotKey.Name = 'buttonBuildAutoHotKey'
 	$buttonBuildAutoHotKey.Size = '88, 56'
 	$buttonBuildAutoHotKey.TabIndex = 8
@@ -621,7 +802,7 @@ Zuboo'
 	#
 	# buttonBuildShortcuts
 	#
-	$buttonBuildShortcuts.Location = '13, 116'
+	$buttonBuildShortcuts.Location = '14, 217'
 	$buttonBuildShortcuts.Name = 'buttonBuildShortcuts'
 	$buttonBuildShortcuts.Size = '88, 56'
 	$buttonBuildShortcuts.TabIndex = 7
@@ -634,7 +815,7 @@ Zuboo'
 	# labelToonsCsvLocation
 	#
 	$labelToonsCsvLocation.AutoSize = $True
-	$labelToonsCsvLocation.Location = '13, 70'
+	$labelToonsCsvLocation.Location = '13, 73'
 	$labelToonsCsvLocation.Name = 'labelToonsCsvLocation'
 	$labelToonsCsvLocation.Size = '117, 17'
 	$labelToonsCsvLocation.TabIndex = 6
@@ -700,6 +881,10 @@ Zuboo'
 	#
 	# savefiledialog1
 	#
+	#
+	# folderbrowserdialog4
+	#
+	$groupbox1.ResumeLayout()
 	$MainForm.ResumeLayout()
 	#endregion Generated Form Code
 
@@ -783,6 +968,217 @@ Zuboo'
 	}
 	#endregion Update-Display
 	
+	#region Get-IniContent
+	function Get-IniContent ($filePath)
+	{
+		$ini = @{ }
+		switch -regex -file $FilePath
+		{
+			"^\[(.+)\]" # Section
+			{
+				$section = $matches[1]
+				$ini[$section] = @{ }
+				$CommentCount = 0
+			}
+			"^(;.*)$" # Comment
+			{
+				$value = $matches[1]
+				$CommentCount = $CommentCount + 1
+				$name = "Comment" + $CommentCount
+				$ini[$section][$name] = $value
+			}
+			"(.+?)\s*=(.*)" # Key
+			{
+				$name, $value = $matches[1 .. 2]
+				$ini[$section][$name] = $value
+			}
+		}
+		return $ini
+	}
+	#endregion Get-IniContent
+	
+	#region Out-IniFile
+	Function Out-IniFile
+	{
+	    <#  
+	    .Synopsis  
+	        Write hash content to INI file  
+	          
+	    .Description  
+	        Write hash content to INI file  
+	          
+	    .Notes  
+	        Author        : Oliver Lipkau <oliver@lipkau.net>  
+	        Blog        : http://oliver.lipkau.net/blog/  
+	        Source        : https://github.com/lipkau/PsIni 
+	                      http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91 
+	        Version        : 1.0 - 2010/03/12 - Initial release  
+	                      1.1 - 2012/04/19 - Bugfix/Added example to help (Thx Ingmar Verheij)  
+	                      1.2 - 2014/12/11 - Improved handling for missing output file (Thx SLDR) 
+	          
+	        #Requires -Version 2.0  
+	          
+	    .Inputs  
+	        System.String  
+	        System.Collections.Hashtable  
+	          
+	    .Outputs  
+	        System.IO.FileSystemInfo  
+	          
+	    .Parameter Append  
+	        Adds the output to the end of an existing file, instead of replacing the file contents.  
+	          
+	    .Parameter InputObject  
+	        Specifies the Hashtable to be written to the file. Enter a variable that contains the objects or type a command or expression that gets the objects.  
+	  
+	    .Parameter FilePath  
+	        Specifies the path to the output file.  
+	       
+	     .Parameter Encoding  
+	        Specifies the type of character encoding used in the file. Valid values are "Unicode", "UTF7",  
+	         "UTF8", "UTF32", "ASCII", "BigEndianUnicode", "Default", and "OEM". "Unicode" is the default.  
+	          
+	        "Default" uses the encoding of the system's current ANSI code page.   
+	          
+	        "OEM" uses the current original equipment manufacturer code page identifier for the operating   
+	        system.  
+	       
+	     .Parameter Force  
+	        Allows the cmdlet to overwrite an existing read-only file. Even using the Force parameter, the cmdlet cannot override security restrictions.  
+	          
+	     .Parameter PassThru  
+	        Passes an object representing the location to the pipeline. By default, this cmdlet does not generate any output.  
+	                  
+	    .Example  
+	        Out-IniFile $IniVar "C:\myinifile.ini"  
+	        -----------  
+	        Description  
+	        Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini  
+	          
+	    .Example  
+	        $IniVar | Out-IniFile "C:\myinifile.ini" -Force  
+	        -----------  
+	        Description  
+	        Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and overwrites the file if it is already present  
+	          
+	    .Example  
+	        $file = Out-IniFile $IniVar "C:\myinifile.ini" -PassThru  
+	        -----------  
+	        Description  
+	        Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and saves the file into $file  
+	  
+	    .Example  
+	        $Category1 = @{"Key1"="Value1";"Key2"="Value2"}  
+	    $Category2 = @{"Key1"="Value1";"Key2"="Value2"}  
+	    $NewINIContent = @{"Category1"=$Category1;"Category2"=$Category2}  
+	    Out-IniFile -InputObject $NewINIContent -FilePath "C:\MyNewFile.INI"  
+	        -----------  
+	        Description  
+	        Creating a custom Hashtable and saving it to C:\MyNewFile.INI  
+	    .Link  
+	        Get-IniContent  
+	    #>	
+		
+		[CmdletBinding()]
+		Param (
+			[switch]$Append,
+			[ValidateSet("Unicode", "UTF7", "UTF8", "UTF32", "ASCII", "BigEndianUnicode", "Default", "OEM")]
+			[Parameter()]
+			[string]$Encoding = "Unicode",
+			[ValidateNotNullOrEmpty()]
+			[ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
+			[Parameter(Mandatory = $True)]
+			[string]$FilePath,
+			[switch]$Force,
+			[ValidateNotNullOrEmpty()]
+			[Parameter(ValueFromPipeline = $True, Mandatory = $True)]
+			[Hashtable]$InputObject,
+			[switch]$Passthru
+		)
+		
+		Begin
+		{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function started" }
+		
+		Process
+		{
+			Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Filepath"
+			
+			if ($append) { $outfile = Get-Item $FilePath }
+			else { $outFile = New-Item -ItemType file -Path $Filepath -Force:$Force }
+			if (!($outFile)) { Throw "Could not create File" }
+			foreach ($i in $InputObject.keys)
+			{
+				if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
+				{
+					#No Sections  
+					Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
+					Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
+				}
+				else
+				{
+					#Sections  
+					Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
+					Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
+					Foreach ($j in $($InputObject[$i].keys | Sort-Object))
+					{
+						if ($j -match "^Comment[\d]+")
+						{
+							Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
+							Add-Content -Path $outFile -Value "$($InputObject[$i][$j])" -Encoding $Encoding
+						}
+						else
+						{
+							Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
+							Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
+						}
+						
+					}
+					Add-Content -Path $outFile -Value "" -Encoding $Encoding
+				}
+			}
+			Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
+			if ($PassThru) { Return $outFile }
+		}
+		
+		End
+		{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended" }
+	}
+	#endregion Out-IniFile
+	
+	#region button-check
+	function button-check
+	{
+		if (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -ne ''))
+		{
+			$buttonBuildShortcuts.Enabled = $true
+			$buttonBuildAutoHotKey.Enabled = $true
+			$buttonBuildMQ2AutoLogin.Enabled = $true
+			$buttonStartMissingToons.Enabled = $true
+		}
+		elseif (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -eq ''))
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $true
+			$buttonStartMissingToons.Enabled = $false
+		}
+		elseif (($toonsFile.Text -eq '') -and ($ShortcutsFolder.Text -ne ''))
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $false
+			$buttonStartMissingToons.Enabled = $true
+		}
+		else
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $false
+			$buttonStartMissingToons.Enabled = $false
+			
+		}
+	}
+	#endregion button-check
 #endregion Source: Globals.ps1
 
 #region Source: ChildForm.psf
