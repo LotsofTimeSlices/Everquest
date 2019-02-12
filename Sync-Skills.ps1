@@ -179,7 +179,7 @@ foreach ($toon in $toons) #parses each file and stores in an custom object
 		}
 	}
 }
-#$SkillList | Where-Object { $_.SkillLevel -ne '0' }
+$SkillList = $SkillList | Where-Object { $_.SkillLevel -ne '0' } #removes skills with 0 points
 #Write-Output ''
 #Write-Output "Total toons: $(($SkillList | Select-Object name -Unique).count)"
 #endregion ParseLocalFiles
