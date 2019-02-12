@@ -3,6 +3,8 @@ PowerShell Scripts
 
 NotePad++ XML configuration file
 
+**PEQ_Configurator** - A PowerShell GUI to help ease EQ boxing.  
+
 **Sync-skills.ps1** - Needed to mirror my skills from PEQ to my private server rather than just maxing them out.   
 Gets total list of Skills (not languages) from PEQ Magelo. 
 Creates a CSV and Macro for importing your skills into your private EQEMU server.
