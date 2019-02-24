@@ -1,11 +1,21 @@
 # Everquest
 PowerShell Scripts
 
-**MacroQuest2.xml** - NotePad++ XML configuration file
-
 **PEQ_Configurator** - A PowerShell GUI to help ease EQ boxing. 
 
 **EQUI_BigBankWnd.xml** - Modified Big Bank UI Window.  Made larger than original.  
+
+**Get-AAFromMagelo.ps1** - Example script to get AA total from Magelo.  Not completed.  
+
+**MacroQuest2.xml** - NotePad++ XML configuration file.  
+
+**Rename-BotINIs.ps1** - Renames Bot INI files.  
+
+**Search-Replace.PS1**  - Allows searching an INI file for a particular string and replacing a specific part of it.    
+Example:  
+$SearchTerm = 'Grade A' #Set your search term here -- This line will be altered if it contains the $BaseAction string else it will be skipped  
+$BaseAction = '=Skip' #Set your current string here -- This is the string you want replaced  
+$ReplaceAction = '=Keep' #Set your new/updated string here -- This is the replacement string  
 
 **Sync-skills.ps1** - Needed to mirror my skills from PEQ to my private server rather than just maxing them out.   
 Gets total list of Skills (not languages) from PEQ Magelo. 
