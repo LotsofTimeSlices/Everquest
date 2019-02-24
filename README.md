@@ -3,7 +3,9 @@ PowerShell Scripts
 
 **MacroQuest2.xml** - NotePad++ XML configuration file
 
-**PEQ_Configurator** - A PowerShell GUI to help ease EQ boxing.  
+**PEQ_Configurator** - A PowerShell GUI to help ease EQ boxing. 
+
+**EQUI_BigBankWnd.xml** - Modified Big Bank UI Window.  Made larger than original.  
 
 **Sync-skills.ps1** - Needed to mirror my skills from PEQ to my private server rather than just maxing them out.   
 Gets total list of Skills (not languages) from PEQ Magelo. 
