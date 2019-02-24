@@ -17,13 +17,7 @@ $SearchTerm = 'Grade A' #Set your search term here -- This line will be altered 
 $BaseAction = '=Skip' #Set your current string here -- This is the string you want replaced  
 $ReplaceAction = '=Keep' #Set your new/updated string here -- This is the replacement string  
 
-**Sync-skills.ps1** - Needed to mirror my skills from PEQ to my private server rather than just maxing them out.   
-Gets total list of Skills (not languages) from PEQ Magelo. 
-Creates a CSV and Macro for importing your skills into your private EQEMU server.
-Make sure to create a toons.txt file with a list of toons (1 per line).
-If you have a lot of bots, this will create a very large macro which can take some time to build.  It takes even longer for it to execute but should end up saving you many hours of clicking.
-
-**Create Sync-Equipment.ps1** - PowerShell script to parse inventory files and create a macro file and inventory file.  The macro file is meant to be run on a private server with exact toon names as the live emulated server.  When run by the GM, it will pass out all equipped items including augs.  
+**Sync-Equipment.ps1** - PowerShell script to parse inventory files and create a macro file and inventory file.  The macro file is meant to be run on a private server with exact toon names as the live emulated server.  When run by the GM, it will pass out all equipped items including augs.  
 
 1 - Run /bcaa //outputfile inventory on live emu server  
 2 - Run this script and point to each instance of EQ that contains log files such as C:\EQ and C:\EQBots  
@@ -35,3 +29,8 @@ If you have a lot of bots, this will create a very large macro which can take so
 #Restart E3 to auto inventory equipment on the cursor.  
 #Attunable items and augs must be manually added.  
 
+**Sync-skills.ps1** - Needed to mirror my skills from PEQ to my private server rather than just maxing them out.   
+Gets total list of Skills (not languages) from PEQ Magelo. 
+Creates a CSV and Macro for importing your skills into your private EQEMU server.
+Make sure to create a toons.txt file with a list of toons (1 per line).
+If you have a lot of bots, this will create a very large macro which can take some time to build.  It takes even longer for it to execute but should end up saving you many hours of clicking.
