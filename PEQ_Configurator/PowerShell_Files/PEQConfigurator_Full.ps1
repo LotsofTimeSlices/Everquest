@@ -53,7 +53,7 @@ function Show-MainForm_psf
 	[void][reflection.assembly]::Load('System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a')
 	[void][reflection.assembly]::Load('System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
 	#endregion Import Assemblies
-	
+
 	#----------------------------------------------
 	#region Generated Form Objects
 	#----------------------------------------------
@@ -125,7 +125,7 @@ function Show-MainForm_psf
 	$firstRunTextToolStripMenuItem = New-Object 'System.Windows.Forms.ToolStripMenuItem'
 	$InitialFormWindowState = New-Object 'System.Windows.Forms.FormWindowState'
 	#endregion Generated Form Objects
-	
+
 	#----------------------------------------------
 	# User Generated Script
 	#----------------------------------------------
@@ -1149,22 +1149,16 @@ Zuboo" -color 'Orange'
 		Get-Process -Name powershell | Where-Object { $_.MainWindowTitle -eq 'Hung EQ Process Monitor' } | Stop-Process
 		if ($EQRunning -ne $null)
 		{
-			if ($textbox2 -eq '')
+			if ($textbox2.Text -match '^[a-z]*$' -or $textbox2.Text -match ' ')
 			{
-				$timeout = 30
+				$textbox2.Clear()
+				Update-Display 'Numbers only and no spaces please' -color 'yellow'
 			}
 			else
 			{
-				if ($textbox2.Text -match '^[a-z]*$')
-				{
-					$textbox2.Clear()
-					Update-Display 'Numbers only please' -color 'yellow'
-				}
-				else
-				{
-					$timeout = $textbox2.Text
-					Update-Display "A new window labeled `'Hung EQ Process Monitor`' will open (minimized).  It will check for hung EQ processes every $timeout seconds." -color 'Orange'
-					Start-Process powershell -ArgumentList "-WindowStyle Minimized -command  & { 
+				$timeout = $textbox2.Text
+				Update-Display "A new window labeled `'Hung EQ Process Monitor`' will open (minimized).  It will check for hung EQ processes every $timeout seconds." -color 'Orange'
+				Start-Process powershell -ArgumentList "-WindowStyle Minimized -command  & { 
 `$host.ui.RawUI.WindowTitle = 'Hung EQ Process Monitor'
 do {
         `$hungEQ = get-process -Name eqgame | Where-Object {`$_.Responding -eq `$false}
@@ -1186,14 +1180,13 @@ do {
     }
     While (get-process -Name eqgame)
 }"
-				}
-				
 			}
+			
+			
 		}
 		else
 		{
 			Update-Display 'Everquest is not running' -color 'Yellow'
-			$textbox2.Text = 30
 		}
 		
 		buttonup
@@ -1352,13 +1345,13 @@ do {
 	#region Generated Events
 	#----------------------------------------------
 	
-	$Form_StateCorrection_Load =
+	$Form_StateCorrection_Load=
 	{
 		#Correct the initial state of the form to prevent the .Net maximized form issue
 		$MainForm.WindowState = $InitialFormWindowState
 	}
 	
-	$Form_StoreValues_Closing =
+	$Form_StoreValues_Closing=
 	{
 		#Store the control values
 		$script:MainForm_EQBCSFile = $EQBCSFile.Text
@@ -1369,9 +1362,9 @@ do {
 		$script:MainForm_toonsFile = $toonsFile.Text
 		$script:MainForm_richtextbox1 = $richtextbox1.Text
 	}
+
 	
-	
-	$Form_Cleanup_FormClosed =
+	$Form_Cleanup_FormClosed=
 	{
 		#Remove all event handlers from the controls
 		try
@@ -1420,7 +1413,7 @@ do {
 		catch { Out-Null <# Prevent PSScriptAnalyzer warning #> }
 	}
 	#endregion Generated Events
-	
+
 	#----------------------------------------------
 	#region Generated Form Code
 	#----------------------------------------------
@@ -2500,9 +2493,9 @@ Copy and paste into .AHK file')
 	$menustrip1.ResumeLayout()
 	$MainForm.ResumeLayout()
 	#endregion Generated Form Code
-	
+
 	#----------------------------------------------
-	
+
 	#Save the initial state of the form
 	$InitialFormWindowState = $MainForm.WindowState
 	#Init the OnLoad event to correct the initial state of the form
@@ -2513,19 +2506,19 @@ Copy and paste into .AHK file')
 	$MainForm.add_Closing($Form_StoreValues_Closing)
 	#Show the Form
 	return $MainForm.ShowDialog()
-	
+
 }
 #endregion Source: MainForm.psf
 
 #region Source: Globals.ps1
-#--------------------------------------------
-# Declare Global Variables and Functions here
-#--------------------------------------------
-
-
-#Sample function that provides the location of the script
-function Get-ScriptDirectory
-{
+	#--------------------------------------------
+	# Declare Global Variables and Functions here
+	#--------------------------------------------
+	
+	
+	#Sample function that provides the location of the script
+	function Get-ScriptDirectory
+	{
 	<#
 		.SYNOPSIS
 			Get-ScriptDirectory returns the proper location of the script.
@@ -2536,83 +2529,83 @@ function Get-ScriptDirectory
 		.NOTES
 			Returns the correct path within a packaged executable.
 	#>
-	[OutputType([string])]
-	param ()
-	if ($null -ne $hostinvocation)
-	{
-		Split-Path $hostinvocation.MyCommand.path
+		[OutputType([string])]
+		param ()
+		if ($null -ne $hostinvocation)
+		{
+			Split-Path $hostinvocation.MyCommand.path
+		}
+		else
+		{
+			Split-Path $script:MyInvocation.MyCommand.Path
+		}
 	}
-	else
-	{
-		Split-Path $script:MyInvocation.MyCommand.Path
-	}
-}
-
-#Sample variable that provides the location of the script
-[string]$ScriptDirectory = Get-ScriptDirectory
-
-#region buttonup
-function buttonup
-{
-	$this.Cursor = 'Default'
-	$this.Enabled = $true
-}
-#endregion buttonup
-
-#region buttondown
-function buttondown
-{
-	$this.Cursor = 'WaitCursor'
-	$this.Enabled = $false
-}
-#endregion buttondown
-
-#region Update-Display
-function Global:Update-Display
-{
-	param ($ResultToDisplay,
-		$color = '238, 237, 240')
 	
-	$ResultToDisplay = ($ResultToDisplay | Out-String).replace($null, " ")
+	#Sample variable that provides the location of the script
+	[string]$ScriptDirectory = Get-ScriptDirectory
 	
-	$richtextbox1.SelectionColor = $color
-	$richtextbox1.appendText($ResultToDisplay)
-	#$richtextbox_output.appendText("`n")
-}
-#endregion Update-Display
-
-#region Get-IniContent
-function Get-IniContent ($filePath)
-{
-	$ini = @{ }
-	switch -regex -file $FilePath
+	#region buttonup
+	function buttonup
 	{
-		"^\[(.+)\]" # Section
-		{
-			$section = $matches[1]
-			$ini[$section] = @{ }
-			$CommentCount = 0
-		}
-		"^(;.*)$" # Comment
-		{
-			$value = $matches[1]
-			$CommentCount = $CommentCount + 1
-			$name = "Comment" + $CommentCount
-			$ini[$section][$name] = $value
-		}
-		"(.+?)\s*=(.*)" # Key
-		{
-			$name, $value = $matches[1 .. 2]
-			$ini[$section][$name] = $value
-		}
+		$this.Cursor = 'Default'
+		$this.Enabled = $true
 	}
-	return $ini
-}
-#endregion Get-IniContent
-
-#region Out-IniFile
-Function Out-IniFile
-{
+	#endregion buttonup
+	
+	#region buttondown
+	function buttondown
+	{
+		$this.Cursor = 'WaitCursor'
+		$this.Enabled = $false
+	}
+	#endregion buttondown
+	
+	#region Update-Display
+	function Global:Update-Display
+	{
+		param ($ResultToDisplay,
+			$color = '238, 237, 240')
+		
+		$ResultToDisplay = ($ResultToDisplay | Out-String).replace($null, " ")
+		
+		$richtextbox1.SelectionColor = $color
+		$richtextbox1.appendText($ResultToDisplay)
+		#$richtextbox_output.appendText("`n")
+	}
+	#endregion Update-Display
+	
+	#region Get-IniContent
+	function Get-IniContent ($filePath)
+	{
+		$ini = @{ }
+		switch -regex -file $FilePath
+		{
+			"^\[(.+)\]" # Section
+			{
+				$section = $matches[1]
+				$ini[$section] = @{ }
+				$CommentCount = 0
+			}
+			"^(;.*)$" # Comment
+			{
+				$value = $matches[1]
+				$CommentCount = $CommentCount + 1
+				$name = "Comment" + $CommentCount
+				$ini[$section][$name] = $value
+			}
+			"(.+?)\s*=(.*)" # Key
+			{
+				$name, $value = $matches[1 .. 2]
+				$ini[$section][$name] = $value
+			}
+		}
+		return $ini
+	}
+	#endregion Get-IniContent
+	
+	#region Out-IniFile
+	Function Out-IniFile
+	{
 	    <#  
 	    .Synopsis  
 	        Write hash content to INI file  
@@ -2691,182 +2684,182 @@ Function Out-IniFile
 	    .Link  
 	        Get-IniContent  
 	    #>	
-	
-	[CmdletBinding()]
-	Param (
-		[switch]$Append,
-		[ValidateSet("Unicode", "UTF7", "UTF8", "UTF32", "ASCII", "BigEndianUnicode", "Default", "OEM")]
-		[Parameter()]
-		[string]$Encoding = "Unicode",
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
-		[Parameter(Mandatory = $True)]
-		[string]$FilePath,
-		[switch]$Force,
-		[ValidateNotNullOrEmpty()]
-		[Parameter(ValueFromPipeline = $True, Mandatory = $True)]
-		[Hashtable]$InputObject,
-		[switch]$Passthru
-	)
-	
-	Begin
-	{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function started" }
-	
-	Process
-	{
-		Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Filepath"
 		
-		if ($append) { $outfile = Get-Item $FilePath }
-		else { $outFile = New-Item -ItemType file -Path $Filepath -Force:$Force }
-		if (!($outFile)) { Throw "Could not create File" }
-		foreach ($i in $InputObject.keys)
+		[CmdletBinding()]
+		Param (
+			[switch]$Append,
+			[ValidateSet("Unicode", "UTF7", "UTF8", "UTF32", "ASCII", "BigEndianUnicode", "Default", "OEM")]
+			[Parameter()]
+			[string]$Encoding = "Unicode",
+			[ValidateNotNullOrEmpty()]
+			[ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
+			[Parameter(Mandatory = $True)]
+			[string]$FilePath,
+			[switch]$Force,
+			[ValidateNotNullOrEmpty()]
+			[Parameter(ValueFromPipeline = $True, Mandatory = $True)]
+			[Hashtable]$InputObject,
+			[switch]$Passthru
+		)
+		
+		Begin
+		{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function started" }
+		
+		Process
 		{
-			if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
+			Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Filepath"
+			
+			if ($append) { $outfile = Get-Item $FilePath }
+			else { $outFile = New-Item -ItemType file -Path $Filepath -Force:$Force }
+			if (!($outFile)) { Throw "Could not create File" }
+			foreach ($i in $InputObject.keys)
 			{
-				#No Sections  
-				Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
-				Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
-			}
-			else
-			{
-				#Sections  
-				Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
-				Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
-				Foreach ($j in $($InputObject[$i].keys | Sort-Object))
+				if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
 				{
-					if ($j -match "^Comment[\d]+")
-					{
-						Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
-						Add-Content -Path $outFile -Value "$($InputObject[$i][$j])" -Encoding $Encoding
-					}
-					else
-					{
-						Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
-						Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
-					}
-					
+					#No Sections  
+					Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
+					Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
 				}
-				Add-Content -Path $outFile -Value "" -Encoding $Encoding
+				else
+				{
+					#Sections  
+					Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
+					Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
+					Foreach ($j in $($InputObject[$i].keys | Sort-Object))
+					{
+						if ($j -match "^Comment[\d]+")
+						{
+							Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
+							Add-Content -Path $outFile -Value "$($InputObject[$i][$j])" -Encoding $Encoding
+						}
+						else
+						{
+							Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
+							Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
+						}
+						
+					}
+					Add-Content -Path $outFile -Value "" -Encoding $Encoding
+				}
 			}
+			Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
+			if ($PassThru) { Return $outFile }
 		}
-		Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
-		if ($PassThru) { Return $outFile }
-	}
-	
-	End
-	{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended" }
-}
-#endregion Out-IniFile
-
-#region button-check
-function button-check
-{
-	if (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -ne ''))
-	{
-		$buttonBuildShortcuts.Enabled = $true
-		$buttonBuildAutoHotKey.Enabled = $true
-		$buttonBuildMQ2AutoLogin.Enabled = $true
-		$buttonStartMissingToons.Enabled = $true
-	}
-	elseif (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -eq ''))
-	{
-		$buttonBuildShortcuts.Enabled = $false
-		$buttonBuildAutoHotKey.Enabled = $false
-		$buttonBuildMQ2AutoLogin.Enabled = $true
-		$buttonStartMissingToons.Enabled = $false
-	}
-	elseif (($toonsFile.Text -eq '') -and ($ShortcutsFolder.Text -ne ''))
-	{
-		$buttonBuildShortcuts.Enabled = $false
-		$buttonBuildAutoHotKey.Enabled = $false
-		$buttonBuildMQ2AutoLogin.Enabled = $false
-		$buttonStartMissingToons.Enabled = $true
-	}
-	else
-	{
-		$buttonBuildShortcuts.Enabled = $false
-		$buttonBuildAutoHotKey.Enabled = $false
-		$buttonBuildMQ2AutoLogin.Enabled = $false
-		$buttonStartMissingToons.Enabled = $false
 		
+		End
+		{ Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended" }
 	}
-	if ($EQBCSFile.Text -ne '')
-	{
-		$buttonFlagCheck.Enabled = $true
-	}
-	else
-	{
-		$buttonFlagCheck.Enabled = $false
-	}
-}
-#endregion button-check
-
-#region Show-MsgBox
-function script:Show-MsgBox
-{
+	#endregion Out-IniFile
 	
-	[CmdletBinding()]
-	param (
-		[Parameter(Position = 0, Mandatory = $true)]
-		[string]$Prompt,
-		[Parameter(Position = 1, Mandatory = $false)]
-		[string]$Title = "",
-		[Parameter(Position = 2, Mandatory = $false)]
-		[ValidateSet("Information", "Question", "Critical", "Exclamation")]
-		[string]$Icon = "Information",
-		[Parameter(Position = 3, Mandatory = $false)]
-		[ValidateSet("OKOnly", "OKCancel", "AbortRetryIgnore", "YesNoCancel", "YesNo", "RetryCancel")]
-		[string]$BoxType = "OkOnly",
-		[Parameter(Position = 4, Mandatory = $false)]
-		[ValidateSet(1, 2, 3)]
-		[int]$DefaultButton = 1
-	)
-	[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") | Out-Null
-	switch ($Icon)
+	#region button-check
+	function button-check
 	{
-		"Question" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Question }
-		"Critical" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Critical }
-		"Exclamation" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Exclamation }
-		"Information" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Information }
+		if (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -ne ''))
+		{
+			$buttonBuildShortcuts.Enabled = $true
+			$buttonBuildAutoHotKey.Enabled = $true
+			$buttonBuildMQ2AutoLogin.Enabled = $true
+			$buttonStartMissingToons.Enabled = $true
+		}
+		elseif (($toonsFile.Text -ne '') -and ($ShortcutsFolder.Text -eq ''))
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $true
+			$buttonStartMissingToons.Enabled = $false
+		}
+		elseif (($toonsFile.Text -eq '') -and ($ShortcutsFolder.Text -ne ''))
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $false
+			$buttonStartMissingToons.Enabled = $true
+		}
+		else
+		{
+			$buttonBuildShortcuts.Enabled = $false
+			$buttonBuildAutoHotKey.Enabled = $false
+			$buttonBuildMQ2AutoLogin.Enabled = $false
+			$buttonStartMissingToons.Enabled = $false
+			
+		}
+		if ($EQBCSFile.Text -ne '')
+		{
+			$buttonFlagCheck.Enabled = $true
+		}
+		else
+		{
+			$buttonFlagCheck.Enabled = $false
+		}
 	}
-	switch ($BoxType)
+	#endregion button-check
+	
+	#region Show-MsgBox
+	function script:Show-MsgBox
 	{
-		"OKOnly" { $vb_box = [microsoft.visualbasic.msgboxstyle]::OKOnly }
-		"OKCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::OkCancel }
-		"AbortRetryIgnore" { $vb_box = [microsoft.visualbasic.msgboxstyle]::AbortRetryIgnore }
-		"YesNoCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::YesNoCancel }
-		"YesNo" { $vb_box = [microsoft.visualbasic.msgboxstyle]::YesNo }
-		"RetryCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::RetryCancel }
+		
+		[CmdletBinding()]
+		param (
+			[Parameter(Position = 0, Mandatory = $true)]
+			[string]$Prompt,
+			[Parameter(Position = 1, Mandatory = $false)]
+			[string]$Title = "",
+			[Parameter(Position = 2, Mandatory = $false)]
+			[ValidateSet("Information", "Question", "Critical", "Exclamation")]
+			[string]$Icon = "Information",
+			[Parameter(Position = 3, Mandatory = $false)]
+			[ValidateSet("OKOnly", "OKCancel", "AbortRetryIgnore", "YesNoCancel", "YesNo", "RetryCancel")]
+			[string]$BoxType = "OkOnly",
+			[Parameter(Position = 4, Mandatory = $false)]
+			[ValidateSet(1, 2, 3)]
+			[int]$DefaultButton = 1
+		)
+		[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") | Out-Null
+		switch ($Icon)
+		{
+			"Question" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Question }
+			"Critical" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Critical }
+			"Exclamation" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Exclamation }
+			"Information" { $vb_icon = [microsoft.visualbasic.msgboxstyle]::Information }
+		}
+		switch ($BoxType)
+		{
+			"OKOnly" { $vb_box = [microsoft.visualbasic.msgboxstyle]::OKOnly }
+			"OKCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::OkCancel }
+			"AbortRetryIgnore" { $vb_box = [microsoft.visualbasic.msgboxstyle]::AbortRetryIgnore }
+			"YesNoCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::YesNoCancel }
+			"YesNo" { $vb_box = [microsoft.visualbasic.msgboxstyle]::YesNo }
+			"RetryCancel" { $vb_box = [microsoft.visualbasic.msgboxstyle]::RetryCancel }
+		}
+		switch ($Defaultbutton)
+		{
+			1 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton1 }
+			2 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton2 }
+			3 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton3 }
+		}
+		$popuptype = $vb_icon -bor $vb_box -bor $vb_defaultbutton
+		$ans = [Microsoft.VisualBasic.Interaction]::MsgBox($prompt, $popuptype, $title)
+		return $ans
 	}
-	switch ($Defaultbutton)
+	#endregion Show-MsgBox
+	
+	#region Show-Process
+	#https://community.idera.com/database-tools/powershell/powertips/b/tips/posts/bringing-window-in-the-foreground
+	function Show-Process($Process, [Switch]$Maximize)
 	{
-		1 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton1 }
-		2 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton2 }
-		3 { $vb_defaultbutton = [microsoft.visualbasic.msgboxstyle]::DefaultButton3 }
-	}
-	$popuptype = $vb_icon -bor $vb_box -bor $vb_defaultbutton
-	$ans = [Microsoft.VisualBasic.Interaction]::MsgBox($prompt, $popuptype, $title)
-	return $ans
-}
-#endregion Show-MsgBox
-
-#region Show-Process
-#https://community.idera.com/database-tools/powershell/powertips/b/tips/posts/bringing-window-in-the-foreground
-function Show-Process($Process, [Switch]$Maximize)
-{
-	$sig = '
+		$sig = '
     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")] public static extern int SetForegroundWindow(IntPtr hwnd);
   '
-	
-	if ($Maximize) { $Mode = 3 }
-	else { $Mode = 4 }
-	$type = Add-Type -MemberDefinition $sig -Name WindowAPI -PassThru
-	$hwnd = $process.MainWindowHandle
-	$null = $type::ShowWindowAsync($hwnd, $Mode)
-	$null = $type::SetForegroundWindow($hwnd)
-}
-#endregion Show-Process
+		
+		if ($Maximize) { $Mode = 3 }
+		else { $Mode = 4 }
+		$type = Add-Type -MemberDefinition $sig -Name WindowAPI -PassThru
+		$hwnd = $process.MainWindowHandle
+		$null = $type::ShowWindowAsync($hwnd, $Mode)
+		$null = $type::SetForegroundWindow($hwnd)
+	}
+	#endregion Show-Process
 #endregion Source: Globals.ps1
 
 #region Source: HungProcess.psf
@@ -2878,7 +2871,7 @@ function Show-HungProcess_psf
 	[void][reflection.assembly]::Load('System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a')
 	[void][reflection.assembly]::Load('System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
 	#endregion Import Assemblies
-	
+
 	#----------------------------------------------
 	#region Generated Form Objects
 	#----------------------------------------------
@@ -2892,7 +2885,7 @@ function Show-HungProcess_psf
 	$buttonCancel = New-Object 'System.Windows.Forms.Button'
 	$InitialFormWindowState = New-Object 'System.Windows.Forms.FormWindowState'
 	#endregion Generated Form Objects
-	
+
 	#----------------------------------------------
 	# User Generated Script
 	#----------------------------------------------
@@ -2949,7 +2942,8 @@ function Show-HungProcess_psf
 		(
 			[Parameter(Mandatory = $true)]
 			[ValidateNotNull()]
-			[System.Windows.Forms.ListBox]$ListBox,
+			[System.Windows.Forms.ListBox]
+			$ListBox,
 			[Parameter(Mandatory = $true)]
 			[ValidateNotNull()]
 			$Items,
@@ -2957,7 +2951,8 @@ function Show-HungProcess_psf
 			[string]$DisplayMember,
 			[Parameter(Mandatory = $false)]
 			[string]$ValueMember,
-			[switch]$Append
+			[switch]
+			$Append
 		)
 		
 		if (-not $Append)
@@ -2989,7 +2984,7 @@ function Show-HungProcess_psf
 	
 	#endregion
 	
-	$buttonKillAllHungProcesses_Click = {
+	$buttonKillAllHungProcesses_Click={
 		buttondown
 		Start-Sleep -Seconds 1
 		$hungTitles = $hungEQ.MainWindowTitle
@@ -3012,15 +3007,15 @@ function Show-HungProcess_psf
 		
 	}
 	
-	$buttonKillAllKickedProcess_Click = {
+	$buttonKillAllKickedProcess_Click={
 		buttondown
-		Start-Sleep -Seconds 1
+		Start-Sleep -Seconds 1	
 		$kickedTitles = $kickedEQ.MainWindowTitle
 		foreach ($kickedTitle in $kickedTitles)
 		{
 			Get-Process -Id $kickedEQ.ID | Where-Object { $_.MainWindowTitle -eq $kickedTitle } | Stop-Process
 		}
-		$kickedEQCheck = get-process -Name eqgame | Where-Object { $_.MainWindowTitle -eq 'EverQuest' }
+		$kickedEQCheck = get-process -Name eqgame | Where-Object { $_.MainWindowTitle -eq 'EverQuest' }	
 		#$kickedEQCheck = get-process -Name notepad | Where-Object { $_.MainWindowTitle -eq 'Untitled - Notepad' }
 		if ($kickedEQCheck)
 		{
@@ -3040,21 +3035,21 @@ function Show-HungProcess_psf
 	#region Generated Events
 	#----------------------------------------------
 	
-	$Form_StateCorrection_Load =
+	$Form_StateCorrection_Load=
 	{
 		#Correct the initial state of the form to prevent the .Net maximized form issue
 		$formHungKickedProcesses.WindowState = $InitialFormWindowState
 	}
 	
-	$Form_StoreValues_Closing =
+	$Form_StoreValues_Closing=
 	{
 		#Store the control values
 		$script:HungProcess_listbox2 = $listbox2.SelectedItems
 		$script:HungProcess_listbox1 = $listbox1.SelectedItems
 	}
+
 	
-	
-	$Form_Cleanup_FormClosed =
+	$Form_Cleanup_FormClosed=
 	{
 		#Remove all event handlers from the controls
 		try
@@ -3069,7 +3064,7 @@ function Show-HungProcess_psf
 		catch { Out-Null <# Prevent PSScriptAnalyzer warning #> }
 	}
 	#endregion Generated Events
-	
+
 	#----------------------------------------------
 	#region Generated Form Code
 	#----------------------------------------------
@@ -3298,9 +3293,9 @@ JI2CaR4MjkpHgMTjEClsisc8x2vsGVpPB2eZYeJGrm0pYtNOi4Quuxt3XenQnNTEmYbBf4nneI09
 	$buttonCancel.UseVisualStyleBackColor = $True
 	$formHungKickedProcesses.ResumeLayout()
 	#endregion Generated Form Code
-	
+
 	#----------------------------------------------
-	
+
 	#Save the initial state of the form
 	$InitialFormWindowState = $formHungKickedProcesses.WindowState
 	#Init the OnLoad event to correct the initial state of the form
@@ -3311,7 +3306,7 @@ JI2CaR4MjkpHgMTjEClsisc8x2vsGVpPB2eZYeJGrm0pYtNOi4Quuxt3XenQnNTEmYbBf4nneI09
 	$formHungKickedProcesses.add_Closing($Form_StoreValues_Closing)
 	#Show the Form
 	return $formHungKickedProcesses.ShowDialog()
-	
+
 }
 #endregion Source: HungProcess.psf
 
