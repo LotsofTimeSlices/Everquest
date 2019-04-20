@@ -1,9 +1,9 @@
-﻿<File version="3.1">
-  <Code>
-    <![CDATA[#Define a Param block to use custom parameters in the project
+<File version="3.1">
+  <Code><![CDATA[#Define a Param block to use custom parameters in the project
 #Param ($CustomParameter)
 
-function Main {
+function Main
+{
 <#
     .SYNOPSIS
         The Main function starts the project application.
@@ -19,14 +19,14 @@ function Main {
 		$ConsoleOutput (Type: System.Collections.ArrayList)
 #>
 	Param ([String]$Commandline)
-		
+	
 	#--------------------------------------------------------------------------
 	#TODO: Add initialization script here (Load modules and check requirements)
 	
 	
 	#--------------------------------------------------------------------------
 	
-	if((Show-MainForm_psf) -eq 'OK')
+	if ((Show-MainForm_psf) -eq 'OK')
 	{
 		
 	}

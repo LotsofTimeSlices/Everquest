@@ -1,4 +1,4 @@
-﻿<File version="3.1">
+<File version="3.1">
   <FileID>26011dd7-7451-4294-ac12-21cc3f791ba4</FileID>
   <Preview>iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAALRmSURBVHhe7J0FmB5Ftvf3frt37wq7+OLBJWgg
@@ -1024,6 +1024,6 @@ $buttonKillAllKickedProcess_Click={
 	
 }
 ]]></Code>
-  <Mode>1</Mode>
+  <Mode>0</Mode>
   <Assemblies />
 </File>
