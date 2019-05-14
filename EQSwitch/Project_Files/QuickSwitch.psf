@@ -165,7 +165,7 @@ AAAmnQDIfwIAgEknAPKfAABg0k0UAI1FAAwNjh889slvuPhcdPYKAAAm0UcDoDxcDrQPVK442w9b
 Dis/F01d/ZXPjQAAYFJ8NAAqB0yx8mrT8tnpw18AADApJgoAy3sCAICLVgZAexEAu1uHKgeL5b9d
 zQPRJQAAuBh33nnXztF3Ig6PROWq0i6DDUacjIhnnntRAABwYW666eZdTz/zfDzx5NOVK0q7PPbs
 cy/EHVPuFAAAAAAAAAAAAFzh/uzP/j9vqOQaYaxcSwAAAABJRU5ErkJggg==</Preview>
-  <Form>oXdY1hOKIxoBACODCAAAAAAABADtfWlz6rjS8Heq+A+p89XnHbF6qZqZKpYkJJDgBJJAvjzFYrMEbLCNWX79
+  <Form>dhOK1SPVIxoBACODCAAAAAAABADtfWlz6rjS8Heq+A+p89XnHbF6qZqZKpYkJJDgBJJAvjzFYrMEbLCNWX79
 q24ZMOAVyJl7pka3ztzI2K3e1N2SWtKf9e5Y6Vnm38nEzc2frHJjrWfKXz8aa9NSpn98jLS+vjT/
 uNONKfvvzxuvn37evCuGOdK1v3J/pOB/P29Ki4m1MJS/NGVhGZ3Jzxt50Z2MelVl3dS/FO2vriB0
 8r08n5ayOSUlSj9utM6UtqxSeLcvjeXI6g1/3PSGo0nfoK//KOmaZegT8wdiS/GVDX2mGNba+a6w
@@ -381,13 +381,13 @@ F1ofDU+ts9YX1KI+61psw53JR1ayA1pjalqUVlyaJkR5HUPs6OjEjoU8QbyPTBr/N6z1RHF1b7/v
 PTrHARevY8Z347hvV3f3aDCOrj9QpFw/0xfgSaBr0vUJ0gTEwcvfR5sLLY8BsEURMU+w2Q+Gmcjg
 2e9LHiACoh1RBNKBpMUyLxTbKB6GWZe9akU3Lbk8NS25eMOmKOCZaQnA6KCPHlYiRF2/TvbBOuwz
 d1GmVXDBR532f1SnTzTa1A0rsL8eq/RvQpdKrSzo/b+RNuoLlRhCizgv6K324TN+aFxy3gGyt6mA
-Ro4ne/73zYJ3T/l3WoWC2aPhHg32/o3dp6z8m6mDYc3VbYOn7kc0Del8htqG0wkvb9vQoC39dqYh
-oLsEstX/u2/h7a654BUWZ+jlj9zpOOx/X0RBnT5QRgEffouQ9u1FklIAer+jmLytV6CAPD/5FtF4
-zhh5CcUTpd9RHD6RZqA8vL/5FoG8QlORJOKN1O8oEv+Bzb8zFDWnncnk3xioTZX+aDH9N1I26RiD
-f+XAmxodo1OLR13krByfbv0thhOWzm8amM7ym4XaPuYgePTi+U1UxmazcYYv0FQkj+SN1O/okfwM
-WaBMfD76FqE8YVuRpOKD1u8oFh8rHCgV72++RShoRiPJxBup31EkQf4jUC4BH36LcG6hvf8XXUQB
-+P2OcvJY5vt3Btedrr74Vy7/mJh1VBtpX9+zTnKgHFHXSHIx1kgqymT22wVnPuoUyE7vb75n/hOa
-imTPvJH6HU1ZUEcImfL3/fCbJv6hvRtoMFr87I9foJy2f5p//3/yfIQ2IxoBAA==</Form>
+Ro4ne/73zYJ3T/l3WoWC2aPhHg32/o3dp6z8m6mDYc3VbYOn7kc0DelMmtqG0wkvb9vQoC39dqYh
+oLsEstX/u6i8zfIxeLtrLniFxRl6+SN3Og773xdRUKcPlFHAh98ipH17kaQUgN7vKCZv6xUoIM9P
+vkU0njNGXkLxROl3FIdPpBkoD+9vvsVZvEJTkSTijdTvKBL/gc2/MxQ1p53J5N8YqE2V/mgx/TdS
+NukYg3/lwJsaHaNTi0dd5Kwcn279LYYTls5vGpjO8puF2j7mIHj04vlN5BAhG2f4Ak1F8kjeSP2O
+HsnPkAXKxOejbxHKE7YVSSo+aP2OYvGxwoFS8f7mW4SCZjSSTLyR+h1FEuQ/AuUS8OG3COcW2vt/
+0UUUgN/vKCePZb5/Z3Dd6eqLf+Xyj4lZR7WR9vU96yQHyhF1jSQXY42kokxmv11w5qNOgez0/iay
+VcvHmf+EpiLZM2+kfkdTFtQRQqb8fT/8FuGwPMEbaDBa/OyPX6Cctn+af/9/93aDyCMaAQA=</Form>
   <Code><![CDATA[
 $formEQSwitch_Load = {
 	
@@ -731,12 +731,16 @@ function Set-FormSize
 #region Set-FormPosition
 function Set-FormPosition
 {
-	if (Test-Path -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch)
+	if ($formEQSwitch.WindowState -ne 'Minimized')
 	{
-		#Must use string with a negative number
-		Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormPositionX -Value $formEQSwitch.Location.X -Type String #set FormPosition X
-		Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormPositionY -Value $formEQSwitch.Location.y -Type String #set FormPosition Y
+		if (Test-Path -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch)
+		{
+			#Must use string with a negative number
+			Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormPositionX -Value $formEQSwitch.Location.X -Type String #set FormPosition X
+			Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormPositionY -Value $formEQSwitch.Location.y -Type String #set FormPosition Y
+		}
 	}
+	
 }
 #endregion Set-FormPosition
 
