@@ -720,10 +720,13 @@ function buttondown
 #region Set-FormSize
 function Set-FormSize
 {
-	if (Test-Path -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch)
+	if ($formEQSwitch.WindowState -ne 'Minimized')
 	{
-		Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormWidth -Value $formEQSwitch.Width #set FormWidth
-		Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormHeight -Value $formEQSwitch.Height #set FormHeight
+		if (Test-Path -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch)
+		{
+			Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormWidth -Value $formEQSwitch.Width #set FormWidth
+			Set-ItemProperty -path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name FormHeight -Value $formEQSwitch.Height #set FormHeight
+		}
 	}
 }
 #endregion Set-FormSize
