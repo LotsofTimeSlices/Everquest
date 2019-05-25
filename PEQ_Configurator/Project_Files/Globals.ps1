@@ -261,6 +261,7 @@ function button-check
 		$buttonBuildAutoHotKey.Enabled = $false
 		$buttonBuildMQ2AutoLogin.Enabled = $false
 		$buttonStartMissingToons.Enabled = $true
+		$buttonCheckForHungKickedPr.Enabled = $true
 	}
 	else
 	{
@@ -268,6 +269,7 @@ function button-check
 		$buttonBuildAutoHotKey.Enabled = $false
 		$buttonBuildMQ2AutoLogin.Enabled = $false
 		$buttonStartMissingToons.Enabled = $false
+		$buttonCheckForHungKickedPr.Enabled = $false
 		
 	}
 	if ($EQBCSFile.Text -ne '')
@@ -278,6 +280,7 @@ function button-check
 	{
 		$buttonFlagCheck.Enabled = $false
 	}
+	
 }
 #endregion button-check
 
@@ -347,3 +350,22 @@ function Show-Process($Process, [Switch]$Maximize)
 	$null = $type::SetForegroundWindow($hwnd)
 }
 #endregion Show-Process
+
+function Show-EQBCSHelp
+{
+	Update-Display 'EQBCS Logging is required to use this feature.' -color 'Orange'
+	Update-Display 'Logs are wiped each time EQBCS is launched.' -color 'Orange'
+	Update-Display 'To enable logging, add [-l filename] to your EQBCS2.EXE shortcut - Example: ' -color 'Orange'
+	Update-Display 'EQBCS2.exe -l EQBCS2Log.txt' -color 'LimeGreen'
+}
+
+function Show-ShortcutsHelp
+{
+	Update-Display 'Shortcuts Folder Location required to use this feature' -color 'Orange'
+}
+
+function Show-ToonsHelp
+{
+	Update-Display 'Toons.CSV Location required to use this feature' -color 'Orange'
+}
+

@@ -594,13 +594,20 @@ bhZnbCJaAAA=</Form>
 	Update-Textbox '5. Click Restart Missing Toons'
 	Update-Textbox '<UniqueWords> are 1 time use per EQBCS session' -color 'Orange'
 	Update-Textbox 'Use different <UniqueWords> per session - no variations' -color 'Orange'
-	Check-Restart
+	check-hungbuttons
+	
 }
-
-#region Check-Restart
-function Check-Restart
+function check-hungbuttons
 {
-	if (($listbox1.Items.Count -gt 0) -or ($listbox2.Items.Count -gt 0))
+	if (($Shortcut -ne '') -and ($EQBCS -ne ''))
+	{
+		$buttonManuallyCheckForKick.Enabled = $true
+	}
+	else
+	{
+		$buttonManuallyCheckForKick.Enabled = $false
+	}
+	if ((($listbox1.Items.Count -gt 0) -or ($listbox2.Items.Count -gt 0)) -and ($Shortcut -ne ''))
 	{
 		$buttonstartMissingToons.Enabled = $true
 	}
@@ -608,9 +615,7 @@ function Check-Restart
 	{
 		$buttonstartMissingToons.Enabled = $false
 	}
-	
 }
-#endregion Check-Restart
 
 #region Update-Textbox
 function Update-Textbox
@@ -811,7 +816,6 @@ $buttonManuallyCheckForKick_Click = {
 	{
 		$textbox1.Focus()
 	}
-	Check-Restart
 	buttonup
 }
 
@@ -884,8 +888,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 
 $textbox1_TextChanged = {
-	Check-Restart
-	
+	check-hungbuttons
 }
 ]]></Code>
   <Mode>1</Mode>
