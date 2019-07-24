@@ -1723,12 +1723,14 @@ $buttonEQCPUAffinity_Click = {
 	if ($EQRunning -ne $null)
 	{
 		Update-Display 'Setting CPU affinity for all running Everquest processes...' -color 'Orange'
-		Start-Sleep -Seconds 1
+		Start-Sleep -Seconds 1		
+		$LogicalProcessors = ((Get-WmiObject -class Win32_processor).NumberOfLogicalProcessors)
+		[int32]$ProcAffinity = [math]::pow(2, $LogicalProcessors) - 1   #Forumla for processor affinity: a(n) = 2^n - 1
 		$process = GET-PROCESS eqgame
 		foreach ($i in $process)
 		{
-			$i.ProcessorAffinity = 255
-			if ($i.ProcessorAffinity -eq 255)
+			$i.ProcessorAffinity = $ProcAffinity
+			if ($i.ProcessorAffinity -eq $ProcAffinity)
 			{
 				Update-Display "$($i.MainWindowTitle) set to affinity" -color 'Green'
 			}
@@ -1736,21 +1738,7 @@ $buttonEQCPUAffinity_Click = {
 			{
 				Update-Display "$($i.MainWindowTitle) not set to affinity" -color 'Red'
 			}
-		}
-		<#
-		Start-Sleep -Seconds 1
-		$process = GET-PROCESS eqgame
-		foreach ($i in $process)
-		{
-			if ($i.ProcessorAffinity -eq 255)
-			{
-				Update-Display "$($i.MainWindowTitle) set to affinity" -color 'Green'
-			}
-			else
-			{
-				Update-Display "$($i.MainWindowTitle) not set to affinity" -color 'Red'
-			}
-		}#>
+		}		
 	}
 	else
 	{

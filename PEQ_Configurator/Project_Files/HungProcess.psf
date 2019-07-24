@@ -594,6 +594,7 @@ bhZnbCJaAAA=</Form>
 	Update-Textbox '5. Click Restart Missing Toons'
 	Update-Textbox '<UniqueWords> are 1 time use per EQBCS session' -color 'Orange'
 	Update-Textbox 'Use different <UniqueWords> per session - no variations' -color 'Orange'
+	Update-Textbox 'If you are in a raid, use the raid window instead' -color 'Orange'
 	check-hungbuttons
 	
 }
