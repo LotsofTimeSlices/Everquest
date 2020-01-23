@@ -275,10 +275,12 @@ function button-check
 	if ($EQBCSFile.Text -ne '')
 	{
 		$buttonFlagCheck.Enabled = $true
+		$buttonStartJob2.Enabled = $true
 	}
 	else
 	{
 		$buttonFlagCheck.Enabled = $false
+		$buttonStartJob2.Enabled = $false
 	}
 	
 }
@@ -369,3 +371,27 @@ function Show-ToonsHelp
 	Update-Display 'Toons.CSV Location required to use this feature' -color 'Orange'
 }
 
+function Show-Popup
+{
+	if ($checkboxDisplayPopup.Checked)
+	{
+		if ($listview1.Items.Count -gt 0)
+		{
+			[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
+			[System.Windows.Forms.MessageBox]::Show('Hung/Disconnected process detected', 'EQ Monitor', 'OK', 'Exclamation', 'Button1', 'DefaultDesktopOnly') #Always on top
+		}
+	}
+}
+
+function Make-Sound
+{
+	if ($checkboxMakeASound.Checked)
+	{
+		if ($listview1.Items.Count -gt 0)
+		{
+			[console]::beep(1750, 100)
+			[console]::beep(1050, 100)
+			[console]::beep(500, 100)
+		}
+	}	
+}

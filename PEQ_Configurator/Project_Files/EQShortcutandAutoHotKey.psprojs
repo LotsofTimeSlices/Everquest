@@ -3,9 +3,8 @@
   <FileID>6f18c41f-5ad7-4774-8794-3e2aac11de31</FileID>
   <OpenFolders />
   <OpenFiles>
-    <File>Startup.pss</File>
-    <File>Globals.ps1</File>
     <File>MainForm.psf</File>
     <File>HungProcess.psf</File>
+    <File>Globals.ps1</File>
   </OpenFiles>
 </ProjectState>
