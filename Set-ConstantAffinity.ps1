@@ -1,4 +1,4 @@
-﻿$host.ui.RawUI.WindowTitle = 'Set-ConstantAffinity'
+$host.ui.RawUI.WindowTitle = 'Set-ConstantAffinity'
 $procAffinity = [Int32]([math]::pow(2, $(Get-WmiObject -class Win32_processor).NumberOfLogicalProcessors) - 1) #processor affinity number based on # of logical cores
 Do
 {
@@ -14,7 +14,7 @@ Do
 		Write-Host "Setting toon to affinity:  $($A.MainWindowTitle)"
 		$A.ProcessorAffinity = $procAffinity
 	}
-	Write-Host 'Deep Sleep...'
-	Start-Sleep -Seconds 25 #Deep Sleep
+	Write-Host 'Sleeping...'
+	Start-Sleep -Seconds 25 #Sleep
 }
 while (Get-Process eqgame) #Runs until EQ is closed
