@@ -1,13 +1,14 @@
 # Everquest
 PowerShell Scripts
+**EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  
 
-**PEQ_Configurator** - A PowerShell GUI to help ease EQ boxing. 
+**PEQ_Configurator** - A PowerShell GUI that monitors EQ processes and offers a variety of tweaks and options for multiboxing. 
 
-**EQUI_BigBankWnd.xml** - Modified Big Bank UI Window.  Made larger than original.  
+**EQUI_BigBankWnd.xml** - Modified Big Bank UI Window.  Made larger than the original for high res monitors or folks with aging eyes.  
 
-**Get-AAFromMagelo.ps1** - Example script to get AA total from Magelo.  Not completed.  
+**Get-AAFromMagelo.ps1** - Example script to get AA total from Magelo.  Not complete.  
 
-**MacroQuest2.xml** - NotePad++ XML configuration file.  
+**MacroQuest2.xml** - NotePad++ XML configuration file to add customized colors for MQ2.
 
 **Rename-BotINIs.ps1** - Renames Bot INI files.  
 
