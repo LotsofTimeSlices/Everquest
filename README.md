@@ -1,5 +1,4 @@
 # Everquest
-PowerShell Scripts
 
 **EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  
 
@@ -18,6 +17,10 @@ Example:
 $SearchTerm = 'Grade A' #Set your search term here -- This line will be altered if it contains the $BaseAction string else it will be skipped  
 $BaseAction = '=Skip' #Set your current string here -- This is the string you want replaced  
 $ReplaceAction = '=Keep' #Set your new/updated string here -- This is the replacement string  
+
+**Set-ConstantAffinity** - Opens a PowerShell window which continually checks for *renamed* EQ process that are not set for processor affinity and applies it.  This scales to all cores whether you have a 2 core PC or a 64 core Threadripper.  The PowerShell window closes once all EQ processes have exited.
+Example:  
+When you launch a your bot army, they will load up and rename their title from *Everquest* to *ToonName* (if you're using MQ2AutoLogin or another type of window renamer (WinEQ2, AutoHotKey, etc)). Once renamed, the script detects the process and sets it to affinity.   
 
 **Sync-Equipment.ps1** - PowerShell script to parse inventory files and create a macro file and inventory file.  The macro file is meant to be run on a private server with exact toon names as the live emulated server.  When run by the GM, it will pass out all equipped items including augs.  
 
