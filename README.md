@@ -1,5 +1,6 @@
 # Everquest
 PowerShell Scripts
+
 **EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  
 
 **PEQ_Configurator** - A PowerShell GUI that monitors EQ processes and offers a variety of tweaks and options for multiboxing. 
