@@ -18,7 +18,7 @@ $SearchTerm = 'Grade A' #Set your search term here -- This line will be altered 
 $BaseAction = '=Skip' #Set your current string here -- This is the string you want replaced  
 $ReplaceAction = '=Keep' #Set your new/updated string here -- This is the replacement string  
 
-**Set-ConstantAffinity** - Opens a PowerShell window which continually checks for *renamed* EQ process that are not set for processor affinity and applies it.  This scales to all cores whether you have a 2 core PC or a 64 core Threadripper.  The PowerShell window closes once all EQ processes have exited.
+**Set-ConstantAffinity** - Opens a PowerShell window which continually checks for *renamed* EQ process that are not set for processor affinity and applies it.  This scales to all cores whether you have a 2 core CPU or a 64 core Threadripper.  The PowerShell window closes once all EQ processes have exited.
 Example:  
 When you launch a your bot army, they will load up and rename their title from *Everquest* to *ToonName* (if you're using MQ2AutoLogin or another type of window renamer (WinEQ2, AutoHotKey, etc)). Once renamed, the script detects the process and sets it to affinity.   
 
