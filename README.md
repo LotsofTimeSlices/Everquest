@@ -6,7 +6,9 @@
 
 **EQUI_BigBankWnd.xml** - Modified Big Bank UI Window.  Made larger than the original for high res monitors or folks with aging eyes.  
 
-**Get-AAFromMagelo.ps1** - Example script to get AA total from Magelo.  Not complete.  
+**Get-AAFromMagelo.ps1** - Example script to get AA total from Magelo.  Not complete. 
+
+**Get-FlagsfromMagelo.ps1** - A quick way to get flags for a list of toons from ProjectEQ Magelo.  If Magelo changes at all, this script will likely break.  Paste your list of toons into the script and execute.  
 
 **MacroQuest2.xml** - NotePad++ XML configuration file to add customized colors for MQ2.
 
