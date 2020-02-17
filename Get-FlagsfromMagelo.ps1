@@ -1,4 +1,4 @@
-﻿##Get's charater flag data from ProjectEQ Magelo and exports to CSV
+##Get's charater flag data from ProjectEQ Magelo and exports to CSV
 ##if anything changes on Magelo, it will likely break this script
 ##############Paste toon names here##############
 $toons = @"
@@ -15,7 +15,7 @@ if (($ToonCSV = Read-Host -Prompt "Would you like one CSV per toon name [Y/N]") 
 {
 	$ToonCSV = $true
 }
-if (($CSVSavePath = Read-Host -Prompt "Enter CSV save Path [or press ENTER for $env:TEMP]") -eq "")
+if (($CSVSavePath = Read-Host -Prompt "Enter CSV save Path [or press ENTER for $env:TEMP] (Make sure the folder exists)") -eq "")
 {
 	$CSVSavePath = $env:TEMP
 }
@@ -60,7 +60,7 @@ foreach ($toon in $toons)
 			{
 				$Checked = $false
 			}
-			$NewCheckNumber = $CheckNumber + 1
+			$NewCheckNumber = [int]$CheckNumber + 1 #Added [int] to force integer else the number was just appended to the end of a string
 			$FlagName = $ArrayForEach | Where-Object { $_ -match "^" + [regex]::escape($NewCheckNumber) } #https://stackoverflow.com/questions/10400035/match-strings-stored-in-variables-using-powershell
 			$FlagName = ($FlagName -split '<TD vAlign=middle width="100%" noWrap>')
 			$FlagName = ($FlagName[1] -split '</TD>')[0]
