@@ -1,4 +1,4 @@
-#Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it will glow orange continuously and cannot be easily changed.  Therefore, the buttons are all forced to flash so they can be stopped.
+#Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it'll will glow orange continuously and cannot be stopped. 
 #https://learn-powershell.net/2013/08/26/make-a-window-flash-in-taskbar-using-powershell-and-pinvoke/
 Add-Type -TypeDefinition @"
 using System;
@@ -129,11 +129,13 @@ foreach ($handle in $handles) #Flash all EQ Windows
 {
     [window]::FlashWindow($handle,150,0)
 }
-
+pause
 foreach ($handle in $handles) #Stop all flashing EQ Windows
-{   
-    [DisplayFusionFunction]::Run($handle)
+{
+    #[DisplayFusionFunction]::Run($handle) #This seems to hang
+    [ScriptHelper]::DisableWindowFlash($handle)
 }
+
 
 #Other links
 #https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-flashwinfo?redirectedfrom=MSDN
