@@ -129,7 +129,6 @@ foreach ($handle in $handles) #Flash all EQ Windows
 {
     [window]::FlashWindow($handle,150,0)
 }
-pause
 foreach ($handle in $handles) #Stop all flashing EQ Windows
 {
     #[DisplayFusionFunction]::Run($handle) #This seems to hang
