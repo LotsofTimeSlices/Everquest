@@ -102,6 +102,7 @@ function Set-Ascending
 	$AscendingToolStripMenuItem.Checked = $true
 	$DescendingToolStripMenuItem.Checked = $false
 	$groupedToolStripMenuItem.Checked = $false
+	$classToolStripMenuItem.Checked = $false
 	$listview1.Sorting = 'Ascending'
 }
 
@@ -111,6 +112,7 @@ function Set-Descending
 	$AscendingToolStripMenuItem.Checked = $false
 	$DescendingToolStripMenuItem.Checked = $true
 	$groupedToolStripMenuItem.Checked = $false
+	$classToolStripMenuItem.Checked = $false
 	$listview1.Sorting = 'Descending'
 }
 
@@ -120,6 +122,16 @@ function Set-Grouped
 	$AscendingToolStripMenuItem.Checked = $false
 	$DescendingToolStripMenuItem.Checked = $false
 	$groupedToolStripMenuItem.Checked = $true
+	$classToolStripMenuItem.Checked = $false
+}
+
+function Set-Class
+{
+	$listview1.View = 'SmallIcon'
+	$AscendingToolStripMenuItem.Checked = $false
+	$DescendingToolStripMenuItem.Checked = $false
+	$groupedToolStripMenuItem.Checked = $false
+	$classToolStripMenuItem.Checked = $true
 }
 
 function Set-SmallFont
@@ -160,6 +172,12 @@ function Set-ExtraLargeFont
 	$extraLargeToolStripMenuItem.Checked = $true
 	$textbox1.Font = 'Microsoft Sans Serif, 13pt'
 	$listview1.Font = 'Microsoft Sans Serif, 13pt'
+}
+
+function Set-AutoComplete
+{
+	$autoCompleteSuggestAppendToolStripMenuItem.Checked = $true
+	$textbox1.AutoCompleteMode = 'SuggestAppend'
 }
 
 #endregion Set-ToolMenuOptions
@@ -212,3 +230,126 @@ function script:Show-MsgBox
 	return $ans
 }
 #endregion Show-MsgBox
+
+#region Start-Refresh
+function Start-Refresh
+{
+	$listview1.Clear()
+	$textbox1.Clear()
+	$SavedOrder = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty ListViewOrder -ErrorAction SilentlyContinue
+	$Script:RunningEQ = get-process -Name eqgame
+	$unique = $RunningEQ | Select-Object -Property MainWindowTitle -Unique
+	<#
+	if ($RunningEQ.count -eq $unique) #check for duplicate process names
+	{
+		$ContainsDuplicates = $false
+		$Script:RunningEQTitles = $RunningEQ.MainWindowTitle
+	}
+	else
+	{
+		$ContainsDuplicates = $true
+		$list = @()
+		foreach ($r in $RunningEQ)
+		{			
+			$list += [PSCUSTOMOBJECT] @{
+				Name = $r.MainWindowTitle
+				ID   = $r.Id
+			}			
+		}		
+	}#>
+	$Script:RunningEQTitles = $RunningEQ.MainWindowTitle
+	$textbox1.AutoCompleteCustomSource.AddRange($RunningEQTitles)
+	$labelRunningEQInstances.Text = "EQ Count:  $($RunningEQTitles.Count)"
+	#$maxlength = ($RunningEQTitles | Measure-Object -Maximum -Property Length).Maximum
+	if (($SavedOrder -eq $null) -or ($SavedOrder -eq 'Ascending'))
+	{
+		Set-Ascending
+		Add-ListViewItem -ListView $listview1 -Items $RunningEQTitles
+	}
+	elseif ($SavedOrder -eq 'Descending')
+	{
+		Set-Descending
+		Add-ListViewItem -ListView $listview1 -Items $RunningEQTitles
+	}
+	elseif ($SavedOrder -eq 'Grouped')
+	{
+		Set-Grouped #Set listview to $listview1.View = 'SmallIcon'		
+		$12count = 1 .. 12
+		$Groups = @(foreach ($count in $12count) #Get saved groups
+			{
+				$GroupCount = "Group" + $Count
+				$groupmembers = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty $GroupCount -ErrorAction SilentlyContinue
+				foreach ($g in $groupmembers)
+				{
+					[PSCustomObject] @{
+						Group = "Group$count"
+						Toon  = $g
+					}
+				}
+			})
+		
+		foreach ($group in $groups) #Add items to list view
+		{
+			foreach ($g in $group)
+			{
+				if ($g.Toon -ne '' -and $RunningEQTitles -contains $g.Toon)
+				{
+					Add-ListViewItem -ListView $listview1 -Items $($g.Toon) -Group $($g.Group)
+				}				
+			}
+		}
+	}
+	elseif ($SavedOrder -eq 'Class')
+	{
+		Set-Class #Set listview to $listview1.View = 'SmallIcon'
+		$RegItems = Get-Item -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -ErrorAction SilentlyContinue
+		$RegClasses = $RegItems.Property | Where-Object { $_ -match 'Class' } -ErrorAction SilentlyContinue		
+		$Classes = @(foreach ($RegClass in $RegClasses) #Get saved classes
+			{
+				$ClassMembers = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty $RegClass -ErrorAction SilentlyContinue
+				foreach ($c in $ClassMembers)
+				{
+					[PSCustomObject] @{
+						Class = $RegClass.Replace('Class-', '')
+						Toon  = $c
+					}
+				}
+			})
+		$Classes = $Classes | Sort-Object Class
+		foreach ($Class in $Classes) #Add items to list view
+		{
+			foreach ($c in $Class)
+			{
+				if ($c.Toon -ne '' -and $RunningEQTitles -contains $c.Toon)
+				{					
+					Add-ListViewItem -ListView $listview1 -Items $($c.Toon) -Group $($c.Class)
+				}
+			}
+		}
+	}
+}
+#endregion Start-Refresh
+
+
+#region Button-Check
+function Button-Check
+{
+	if ($textboxFile.Text -ne '')
+	{
+		$buttonImportCSVAndUpdate.Enabled = $true
+		$buttonImportCSVAndExportGr.Enabled = $true
+	}
+	else
+	{
+		$buttonImportCSVAndUpdate.Enabled = $false
+		$buttonImportCSVAndExportGr.Enabled = $false
+	}
+}
+#endregion Button-Check
+
+function Make-Sound
+{	
+	[console]::beep(1750, 100)
+	[console]::beep(1050, 100)
+	[console]::beep(500, 100)	
+}
