@@ -180,6 +180,17 @@ function Set-AutoComplete
 	$textbox1.AutoCompleteMode = 'SuggestAppend'
 }
 
+function Set-TrayIcon
+{
+	$showTrayIconToolStripMenuItem.Checked = $true
+	$EQSwitch.Visible = $true
+}
+
+function Set-AlwaysOnTop
+{
+	$alwaysOnTopToolStripMenuItem.Checked = $true
+	$formEQSwitch.TopMost = $true
+}
 #endregion Set-ToolMenuOptions
 
 #region Show-MsgBox
@@ -329,7 +340,6 @@ function Start-Refresh
 	}
 }
 #endregion Start-Refresh
-
 
 #region Button-Check
 function Button-Check
