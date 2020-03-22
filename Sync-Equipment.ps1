@@ -1,6 +1,6 @@
 #For use with /bcaa //outputfile inventory
 #It's a good idea to search for *-inventory.txt and delete any old files as they will be parsed as well.
-#***This script ends all running macros and removes current pets****
+#***This output macro will end all running macros and removes current pets****
 clear-host
 $InvPath = @()
 Write-Host '-----------------------------------------------------'
