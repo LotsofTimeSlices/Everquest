@@ -1,4 +1,5 @@
 # Everquest
+**Combine-AAtoCSV.ps1** - Combines all AAs from AA INIs in your macros folder to a single CSV.  You can filter this to compare who needs what.  
 
 **EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  
 
