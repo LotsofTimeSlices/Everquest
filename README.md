@@ -1,7 +1,7 @@
 # Everquest
 **Combine-AAtoCSV.ps1** - Combines all AAs from AA INIs in your macros folder to a single CSV.  You can filter this to compare who needs what.  
 
-**EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  
+**EQSwitch** - *4/14/2020 - Working on a bug where your toons.csv file will not propagate to the registry.  No group or sorting.*  A PowerShell GUI that helps manage multiple running instances of EQ.  
 
 **PEQ_Configurator** - A PowerShell GUI that monitors EQ processes and offers a variety of tweaks and options for multiboxing. 
 
@@ -28,7 +28,7 @@ When you launch a your bot army, they will load up and rename their title from *
 **Set-EQAffinity.ps1**
 One-liner that sets all running EQ processes to affinity regardless of how many cores your processor has.  This is often used after your toons are loaded from a batch file.  If you have an old batch file (from Creamo for example), update the code with this.
 
-**Stop-FlashingEQTaskbarButtons.ps1**- *This doesn't seem to work any longer as of 4/11/2020* Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it will glow orange continuously and cannot be easily changed.  Therefore, the buttons are all forced to flash so they can be stopped.
+**Stop-FlashingEQTaskbarButtons.ps1**- *4/11/2020 - This no longer seems to work. * Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it will glow orange continuously and cannot be easily changed.  Therefore, the buttons are all forced to flash so they can be stopped.
 
 **Sync-Equipment.ps1** - PowerShell script to parse inventory files and create a macro file and inventory file.  The macro file is meant to be run on a private server with exact toon names as the live emulated server.  When run by the GM, it will pass out all equipped items including augs.
 
