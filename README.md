@@ -1,7 +1,7 @@
 # Everquest
 **Combine-AAtoCSV.ps1** - Combines all AAs from AA INIs in your macros folder to a single CSV.  You can filter this to compare who needs what.  
 
-**EQSwitch** - *4/14/2020 - Found a bug where your toons.csv file will not propagate to the registry so there is no grouping or sorting.  Also working on pulling group data from Saved Groups.ini*  A PowerShell GUI that helps manage multiple running instances of EQ.  
+**EQSwitch** - A PowerShell GUI that helps manage multiple running instances of EQ.  Each instance must be uniquely named (use MQ2AutoLogin to accomplish this). 
 
 **PEQ_Configurator** - A PowerShell GUI that monitors EQ processes and offers a variety of tweaks and options for multiboxing. 
 
