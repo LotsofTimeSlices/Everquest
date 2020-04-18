@@ -28,7 +28,7 @@ When you launch a your bot army, they will load up and rename their title from *
 **Set-EQAffinity.ps1**
 One-liner that sets all running EQ processes to affinity regardless of how many cores your processor has.  This is often used after your toons are loaded from a batch file.  If you have an old batch file (from Creamo for example), update the code with this.
 
-**Stop-FlashingEQTaskbarButtons.ps1**- *4/11/2020 - This no longer seems to work.* Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it will glow orange continuously and cannot be easily changed.  Therefore, the buttons are all forced to flash so they can be stopped.
+**Stop-FlashingEQTaskbarButtons.ps1**- Must be run as admin.  Forces EQ taskbar buttons to flash continuously and then stops them.  If the button has finished flashing, it will glow orange continuously and cannot be easily changed.  Therefore, the buttons are all forced to flash so they can be stopped.
 
 **Sync-Equipment.ps1** - PowerShell script to parse inventory files and create a macro file and inventory file.  The macro file is meant to be run on a private server with exact toon names as the live emulated server.  When run by the GM, it will pass out all equipped items including augs.
 
