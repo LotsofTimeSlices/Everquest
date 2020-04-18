@@ -31,6 +31,19 @@ function Get-ScriptDirectory
 #Sample variable that provides the location of the script
 [string]$ScriptDirectory = Get-ScriptDirectory
 
+$TextCSV = 'C:\EXAMPLE\RoF2\Toons.csv'
+$TextINI = 'C:\EXAMPLE\RoF2\E3_RoF2\Macros\e3 Macro Inis\Saved Groups.ini'
+$RegCheckToonsCSV = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty 'Toons.csv' -ErrorAction SilentlyContinue
+$RegCheckSavedGroupsINI = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty 'SavedGroups.ini' -ErrorAction SilentlyContinue
+
+#region Load-CSV
+if ($RegCheckToonsCSV)
+{
+	$CSV = Import-Csv $RegCheckToonsCSV | Sort-Object Class
+	$Classes = $CSV | Select-Object Character, Class | Group-Object -Property Class -AsHashTable #Group by classes
+}
+#endregion Load-CSV
+
 #region Show-Process
 #https://community.idera.com/database-tools/powershell/powertips/b/tips/posts/bringing-window-in-the-foreground
 function Show-Process($Process, [Switch]$Maximize)
@@ -99,39 +112,23 @@ function Set-FormPosition
 function Set-Ascending
 {
 	$listview1.View = 'List'
-	$AscendingToolStripMenuItem.Checked = $true
-	$DescendingToolStripMenuItem.Checked = $false
-	$groupedToolStripMenuItem.Checked = $false
-	$classToolStripMenuItem.Checked = $false
 	$listview1.Sorting = 'Ascending'
 }
 
 function Set-Descending
 {
 	$listview1.View = 'List'
-	$AscendingToolStripMenuItem.Checked = $false
-	$DescendingToolStripMenuItem.Checked = $true
-	$groupedToolStripMenuItem.Checked = $false
-	$classToolStripMenuItem.Checked = $false
 	$listview1.Sorting = 'Descending'
 }
 
 function Set-Grouped
 {
 	$listview1.View = 'SmallIcon'
-	$AscendingToolStripMenuItem.Checked = $false
-	$DescendingToolStripMenuItem.Checked = $false
-	$groupedToolStripMenuItem.Checked = $true
-	$classToolStripMenuItem.Checked = $false
 }
 
 function Set-Class
 {
 	$listview1.View = 'SmallIcon'
-	$AscendingToolStripMenuItem.Checked = $false
-	$DescendingToolStripMenuItem.Checked = $false
-	$groupedToolStripMenuItem.Checked = $false
-	$classToolStripMenuItem.Checked = $true
 }
 
 function Set-SmallFont
@@ -190,6 +187,23 @@ function Set-AlwaysOnTop
 {
 	$alwaysOnTopToolStripMenuItem.Checked = $true
 	$formEQSwitch.TopMost = $true
+}
+
+function Set-SavedOrder
+{
+	$SavedOrder = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty ListViewOrder -ErrorAction SilentlyContinue
+	$SortItems = $sortToolStripMenuItem.DropDown.Items | Where-Object { $_ -notmatch $toolstripseparator1 }
+	foreach ($item in $SortItems) #Check the item which is set in the registry
+	{
+		if ($SavedOrder -ceq $item) #Case sensitive exact match
+		{
+			$item.Checked = $true
+		}
+		else
+		{
+			$item.Checked = $false
+		}
+	}	
 }
 #endregion Set-ToolMenuOptions
 
@@ -250,28 +264,11 @@ function Start-Refresh
 	$SavedOrder = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty ListViewOrder -ErrorAction SilentlyContinue
 	$Script:RunningEQ = get-process -Name eqgame
 	$unique = $RunningEQ | Select-Object -Property MainWindowTitle -Unique
-	<#
-	if ($RunningEQ.count -eq $unique) #check for duplicate process names
-	{
-		$ContainsDuplicates = $false
-		$Script:RunningEQTitles = $RunningEQ.MainWindowTitle
-	}
-	else
-	{
-		$ContainsDuplicates = $true
-		$list = @()
-		foreach ($r in $RunningEQ)
-		{			
-			$list += [PSCUSTOMOBJECT] @{
-				Name = $r.MainWindowTitle
-				ID   = $r.Id
-			}			
-		}		
-	}#>
 	$Script:RunningEQTitles = $RunningEQ.MainWindowTitle
 	$textbox1.AutoCompleteCustomSource.AddRange($RunningEQTitles)
 	$labelRunningEQInstances.Text = "EQ Count:  $($RunningEQTitles.Count)"
-	#$maxlength = ($RunningEQTitles | Measure-Object -Maximum -Property Length).Maximum
+	Set-SavedOrder
+	
 	if (($SavedOrder -eq $null) -or ($SavedOrder -eq 'Ascending'))
 	{
 		Set-Ascending
@@ -282,84 +279,136 @@ function Start-Refresh
 		Set-Descending
 		Add-ListViewItem -ListView $listview1 -Items $RunningEQTitles
 	}
-	elseif ($SavedOrder -eq 'Grouped')
+	elseif ($SavedOrder -eq 'Class')
 	{
-		Set-Grouped #Set listview to $listview1.View = 'SmallIcon'		
-		$12count = 1 .. 12
-		$Groups = @(foreach ($count in $12count) #Get saved groups
+		Set-Class
+		$Classes = @(foreach ($c in $csv)
 			{
-				$GroupCount = "Group" + $Count
-				$groupmembers = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty $GroupCount -ErrorAction SilentlyContinue
-				foreach ($g in $groupmembers)
-				{
-					[PSCustomObject] @{
-						Group = "Group$count"
-						Toon  = $g
-					}
+				[PSCustomObject] @{
+					Character = $c.Character
+					Class	  = $c.Class
 				}
 			})
-		
-		foreach ($group in $groups) #Add items to list view
+		$Classes = $Classes | Sort-Object Class, Character
+		foreach ($c in $Classes)
 		{
-			foreach ($g in $group)
+			if ($c.Character -ne '' -and $RunningEQTitles -contains $c.Character)
 			{
-				if ($g.Toon -ne '' -and $RunningEQTitles -contains $g.Toon)
-				{
-					Add-ListViewItem -ListView $listview1 -Items $($g.Toon) -Group $($g.Group)
-				}				
+				Add-ListViewItem -ListView $listview1 -Items $($c.Character) -Group $($c.Class)
 			}
 		}
 	}
-	elseif ($SavedOrder -eq 'Class')
+	else #Grouped
 	{
-		Set-Class #Set listview to $listview1.View = 'SmallIcon'
-		$RegItems = Get-Item -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -ErrorAction SilentlyContinue
-		$RegClasses = $RegItems.Property | Where-Object { $_ -match 'Class' } -ErrorAction SilentlyContinue		
-		$Classes = @(foreach ($RegClass in $RegClasses) #Get saved classes
+		Set-Grouped
+		$selected = $SavedOrder #Whatever is clicked on
+		$selection = $INIcontent.keys -match $selected
+		$selectionCount = $selection.Count
+		$num = 0
+		$members = @(foreach ($s in $selection)
 			{
-				$ClassMembers = Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch | Select-Object -ExpandProperty $RegClass -ErrorAction SilentlyContinue
-				foreach ($c in $ClassMembers)
+				$icount = 0 .. 5
+				foreach ($i in $icount)
 				{
+					$GM = 'GroupMember' + $i
+					$Gmember = 'GroupMember#' + $i
+					$GroupName = $Selected + $num
 					[PSCustomObject] @{
-						Class = $RegClass.Replace('Class-', '')
-						Toon  = $c
+						GroupName   = $GroupName
+						#GroupMember = if ($INIcontent.$s.$Gmember -ne 'DEPRECATED') { $INIcontent.$s.$Gmember }
+						GroupMember = $INIcontent.$s.$Gmember
 					}
 				}
+				$num++
 			})
-		$Classes = $Classes | Sort-Object Class
-		foreach ($Class in $Classes) #Add items to list view
+		
+		foreach ($m in $members)
 		{
-			foreach ($c in $Class)
+			if ($m.GroupMember -ne '' -and $RunningEQTitles -contains $m.GroupMember)
 			{
-				if ($c.Toon -ne '' -and $RunningEQTitles -contains $c.Toon)
-				{					
-					Add-ListViewItem -ListView $listview1 -Items $($c.Toon) -Group $($c.Class)
-				}
-			}
-		}
+				Add-ListViewItem -ListView $listview1 -Items $($m.GroupMember) -Group $($m.GroupName)
+			}			
+		}		
 	}
 }
 #endregion Start-Refresh
 
-#region Button-Check
-function Button-Check
+#region Get-IniContent
+function Get-IniContent ($filePath)
 {
-	if ($textboxFile.Text -ne '')
+	$ini = [ordered]@{ } #[ordered] required to load as listed in file
+	switch -regex -file $FilePath
 	{
-		$buttonImportCSVAndUpdate.Enabled = $true
-		$buttonImportCSVAndExportGr.Enabled = $true
+		"^\[(.+)\]" # Section
+		{
+			$section = $matches[1]
+			$ini[$section] = @{ }
+			$CommentCount = 0
+		}
+		"^(;.*)$" # Comment
+		{
+			$value = $matches[1]
+			$CommentCount = $CommentCount + 1
+			$name = "Comment" + $CommentCount
+			$ini[$section][$name] = $value
+		}
+		"(.+?)\s*=(.*)" # Key
+		{
+			$name, $value = $matches[1 .. 2]
+			$ini[$section][$name] = $value
+		}
 	}
-	else
-	{
-		$buttonImportCSVAndUpdate.Enabled = $false
-		$buttonImportCSVAndExportGr.Enabled = $false
-	}
+	return $ini
 }
-#endregion Button-Check
+#endregion Get-IniContent
 
-function Make-Sound
-{	
-	[console]::beep(1750, 100)
-	[console]::beep(1050, 100)
-	[console]::beep(500, 100)	
+#region Get-GroupedFromIni
+function Get-GroupedFromIni
+{
+	$INIcontent = Get-IniContent -filePath $RegCheckSavedGroupsINI
+	$keys = @(foreach ($i in $INIcontent.Keys)
+		{
+			$key = $i -split '_'
+			[PSCustomObject][ordered]@{
+				Group = $key[1]
+			}
+		})
+	$uniqueGroups = $keys.group | Select-Object -Unique
+	if ($uniqueGroups)
+	{
+		$sortToolStripMenuItem.DropDown.Items.Add("-") #Seperator line
+	}
+	foreach ($u in $uniqueGroups) #Add to dropdown menustrip
+	{
+		$sortToolStripMenuItem.DropDownItems.Add($u)
+	}
 }
+#endregion Get-GroupedFromIni
+
+#region add_Click
+function Add-Click #adds dynamic add_click events for menustrip
+{
+	$SortItems = $sortToolStripMenuItem.DropDown.Items | Where-Object { $_ -notmatch $toolstripseparator1 }
+	foreach ($item in $SortItems)
+	{
+		$item.add_Click(
+			{			
+				Set-ItemProperty -Path Registry::HKEY_CURRENT_USER\SOFTWARE\EQSwitch -Name ListViewOrder -Value $this
+				Set-SavedOrder
+				Start-Refresh
+			}
+		)
+	}
+}
+#endregion add_Click
+
+#region Get-GroupedIniRefresh
+$INIcontent = Get-IniContent -filePath $RegCheckSavedGroupsINI
+$keys = @(foreach ($i in $INIcontent.Keys)
+	{
+		$key = $i -split '_'
+		[PSCustomObject][ordered]@{
+			Group = $key[1]
+		}
+	})
+#endregion Get-GroupedIniRefresh
